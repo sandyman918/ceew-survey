@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Submitted — CEEW</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e8f4f8 40%, #f0fdf4 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(0, 92, 138, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 85% 80%, rgba(132, 194, 37, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(0, 163, 224, 0.04) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow:
+                0 4px 6px -1px rgba(0, 0, 0, 0.05),
+                0 20px 60px -10px rgba(0, 92, 138, 0.12),
+                0 0 0 1px rgba(0, 92, 138, 0.06);
+            max-width: 580px;
+            width: 100%;
+            padding: 3.5rem 3rem;
+            text-align: center;
+            position: relative;
+            animation: cardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(28px) scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #005C8A 0%, #00A3E0 50%, #84C225 100%);
+            border-radius: 1.5rem 1.5rem 0 0;
+        }
+
+        .check-wrap {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #005C8A, #00A3E0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            box-shadow: 0 8px 32px rgba(0, 163, 224, 0.35);
+            animation: popIn 0.5s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+            position: relative;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .check-wrap::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 163, 224, 0.3);
+            animation: pulse 2s 0.8s ease-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        .check-wrap svg {
+            width: 44px;
+            height: 44px;
+            stroke: white;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .check-path {
+            stroke-dasharray: 60;
+            stroke-dashoffset: 60;
+            animation: drawCheck 0.5s 0.5s ease-out forwards;
+        }
+
+        @keyframes drawCheck {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeIn 0.4s 0.1s ease forwards;
+        }
+
+        .brand-dot {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #005C8A, #00A3E0);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-dot svg {
+            width: 16px;
+            height: 16px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .brand-name {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.2;
+            margin-bottom: 0.75rem;
+            animation: fadeIn 0.4s 0.55s ease both;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.4s 0.65s ease both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ref-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 9999px;
+            padding: 0.45rem 1.1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #0369a1;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.4s 0.75s ease both;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.875rem;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.4s 0.85s ease both;
+        }
+
+        .info-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.875rem;
+            padding: 1rem 0.75rem;
+            text-align: center;
+        }
+
+        .info-card .ic-icon {
+            font-size: 1.4rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-card .ic-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            margin-bottom: 0.2rem;
+        }
+
+        .info-card .ic-val {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #005C8A 0%, #00A3E0 100%);
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 0.85rem 2.5rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0, 163, 224, 0.4);
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+            animation: fadeIn 0.4s 0.95s ease both;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 163, 224, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .footer-note {
+            margin-top: 2rem;
+            font-size: 0.72rem;
+            color: #94a3b8;
+            animation: fadeIn 0.4s 1.05s ease both;
+        }
+
+        .footer-note a {
+            color: #0ea5e9;
+            text-decoration: none;
+        }
+
+        .confetti {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .dot {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            0% {
+                opacity: 1;
+                transform: translateY(-20px) rotate(0deg);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(110vh) rotate(720deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="confetti" id="confetti"></div>
+
+    <div class="card">
+
+        <div class="brand-logo">
+            <div class="brand-dot">
+                <svg viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+            </div>
+            <span class="brand-name">CEEW · Real-Time Monitoring Survey</span>
+        </div>
+
+        <div class="check-wrap">
+            <svg viewBox="0 0 48 48">
+                <polyline class="check-path" points="10,26 20,36 38,14" />
+            </svg>
+        </div>
+
+        <h1 class="title">Survey Submitted!</h1>
+        <p class="subtitle">
+            Thank you for participating in the Real-Time Monitoring Survey.<br>
+            Your responses have been securely recorded.
+        </p>
+
+        <div class="ref-pill">
+            <svg style="width:14px;height:14px;stroke:#0369a1;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+                viewBox="0 0 24 24">
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+            </svg>
+            Submission ID: {{ submission_id }}
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="ic-icon">🏭</div>
+                <div class="ic-label">Plant</div>
+                <div class="ic-val">{{ industry_name }}</div>
+            </div>
+            <div class="info-card">
+                <div class="ic-icon">📅</div>
+                <div class="ic-label">Submitted on</div>
+                <div class="ic-val">{{ submitted_date }}</div>
+            </div>
+            <div class="info-card">
+                <div class="ic-icon">✅</div>
+                <div class="ic-label">Status</div>
+                <div class="ic-val" style="color:#16a34a">Saved</div>
+            </div>
+        </div>
+
+        <a href="/" class="btn-primary">
+            <svg style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"
+                viewBox="0 0 24 24">
+                <path d="M12 5v14M5 12l7-7 7 7" />
+            </svg>
+            Submit Another Response
+        </a>
+
+        <p class="footer-note">
+        </p>
+    </div>
+
+    <script>
+        const colors = ['#005C8A', '#00A3E0', '#84C225', '#38bdf8', '#a3e635', '#facc15'];
+        const container = document.getElementById('confetti');
+
+        for (let i = 0; i < 55; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            const size = Math.random() * 10 + 6;
+            dot.style.cssText = `
+                width: ${size}px;
+                height: ${size}px;
+                left: ${Math.random() * 100}vw;
+                top: -20px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                border-radius: ${Math.random() > 0.5 ? '50%' : '3px'};
+                animation-duration: ${Math.random() * 2.5 + 2}s;
+                animation-delay: ${Math.random() * 1.2}s;
+                opacity: 0;
+            `;
+            container.appendChild(dot);
+        }
+    </script>
+</body>
+
+</html>

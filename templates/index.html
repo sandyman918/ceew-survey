@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Monitoring Survey - CEEW</title>
+    <link rel="icon" type="image/png" href="https://www.ceew.in/themes/custom/ceew_theme/favicon.ico"
+        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>'" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        ceew: {
+                            teal: '#005C8A',
+                            cyan: '#00A3E0',
+                            green: '#84C225',
+                            light: '#F4F7F9',
+                            dark: '#1e293b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        select,
+        textarea {
+            box-sizing: border-box !important;
+            width: 100% !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 0.5rem !important;
+            padding: 0.75rem 1rem !important;
+            font-size: 0.875rem !important;
+            color: #0f172a !important;
+            background-color: #f8fafc !important;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.01) !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="email"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none !important;
+            background-color: #ffffff !important;
+            border-color: #0ea5e9 !important;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15) !important;
+        }
+
+        input:hover:not([readonly]),
+        select:hover:not([readonly]),
+        textarea:hover:not([readonly]) {
+            border-color: #9cb4cd;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none !important;
+            border-color: #00A3E0 !important;
+            box-shadow: 0 0 0 4px rgba(0, 163, 224, 0.15) !important;
+            background-color: #ffffff;
+        }
+
+        #validation-toast {
+            display: none;
+            position: fixed;
+            top: 1.25rem;
+            right: 1.25rem;
+            z-index: 9999;
+            max-width: 420px;
+            background: #fff;
+            border: 1.5px solid #fca5a5;
+            border-left: 5px solid #ef4444;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            padding: 1rem 1.25rem;
+            font-family: 'Inter', sans-serif;
+            animation: slideInToast .25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #validation-toast.show {
+            display: block;
+        }
+
+        @keyframes slideInToast {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #validation-toast .toast-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #b91c1c;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.6rem;
+        }
+
+        #validation-toast .toast-list {
+            font-size: 0.78rem;
+            color: #374151;
+            list-style: none;
+            padding: 0;
+            margin: 0 0 0.75rem;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        #validation-toast .toast-list li {
+            padding: 0.3rem 0;
+            border-bottom: 1px solid #fee2e2;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.4rem;
+        }
+
+        #validation-toast .toast-list li::before {
+            content: '⚠';
+            font-size: 0.7rem;
+            margin-top: 1px;
+            color: #ef4444;
+        }
+
+        #validation-toast .toast-close {
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0.3rem;
+            border-radius: 0.375rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            transition: background .15s;
+        }
+
+        #validation-toast .toast-close:hover {
+            background: #f3f4f6;
+        }
+
+        .field-error {
+            border-color: #ef4444 !important;
+            background-color: #fff5f5 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+        }
+
+        .table-wrapper {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .custom-table th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-top: none;
+            min-width: 165px;
+            line-height: 1.4;
+        }
+
+        #cems-dynamic-container .custom-table th,
+        #ceqms-dynamic-container .custom-table th,
+        #caaqms-dynamic-container .custom-table th,
+        .challenge-matrix th {
+            min-width: 320px;
+            font-size: 0.62rem;
+            white-space: normal;
+            letter-spacing: 0.02em;
+        }
+
+        #cems-dynamic-container .custom-table th span,
+        #ceqms-dynamic-container .custom-table th span,
+        #caaqms-dynamic-container .custom-table th span {
+            font-size: 0.58rem;
+            opacity: 0.75;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .cems-matrix th {
+            min-width: 200px;
+            font-size: 0.6rem;
+        }
+
+
+        .custom-table td {
+            padding: 0.875rem 1rem;
+            color: #334155;
+            font-size: 0.875rem;
+            border: 1px solid #e2e8f0;
+            vertical-align: middle;
+            min-width: 140px;
+        }
+
+        .custom-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .custom-table tbody tr:hover td {
+            background-color: #f1f5f9;
+        }
+
+        .custom-table td input[type="text"],
+        .custom-table td input[type="number"],
+        .custom-table td select {
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 120px;
+            border: 1px solid #cbd5e1;
+            background-color: #ffffff;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+            padding: 0.625rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            color: #0f172a;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .custom-table td input:hover,
+        .custom-table td select:hover {
+            border-color: #94a3b8;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .custom-table td input:focus,
+        .custom-table td select:focus {
+            outline: none;
+            background-color: #ffffff;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+        }
+
+        .section-header {
+            font-weight: 600;
+            background-color: #f8fafc !important;
+            color: #005C8A !important;
+        }
+
+        .hidden-step {
+            display: none;
+        }
+
+        .stepper-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .stepper-active {
+            background-color: #00A3E0;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 163, 224, 0.3);
+            transform: scale(1.05);
+        }
+
+        .stepper-inactive {
+            background-color: #e2e8f0;
+            color: #64748b;
+        }
+
+        .stepper-inactive:hover {
+            background-color: #cbd5e1;
+        }
+
+        .wide-matrix {
+            min-width: 1500px;
+        }
+
+        .challenge-matrix {
+            min-width: 1600px;
+        }
+
+        .cems-matrix {
+            min-width: 2100px;
+        }
+
+        .overflow-x-auto {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 font-sans text-gray-900 antialiased min-h-screen flex flex-col">
+
+    <div id="validation-toast" role="alert" aria-live="assertive">
+        <div class="toast-title">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width:1rem;height:1rem;flex-shrink:0" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+            Fix the following before proceeding
+        </div>
+        <ul id="validation-toast-list" class="toast-list"></ul>
+        <span class="toast-close" onclick="closeValidationToast()">✕ Dismiss</span>
+    </div>
+
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-ceew-teal to-blue-800 rounded-lg flex items-center justify-center shadow-lg shadow-ceew-teal/20">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                        </path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-[1.15rem] font-bold text-slate-800 leading-tight tracking-tight">Real-Time
+                        Monitoring Survey</h1>
+                    <p class="text-[0.65rem] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">Council on
+                        Energy, Environment and Water</p>
+                </div>
+            </div>
+            <div>
+                <span
+                    class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded text-[0.7rem] font-medium bg-green-50 text-green-700 border border-green-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                    Live Data Collection
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div
+        class="max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8 lg:gap-12 flex-1 relative items-start">
+
+        <aside class="w-full lg:w-64 flex-shrink-0 lg:sticky lg:top-[120px]">
+            <nav aria-label="Progress">
+                <ol role="list" class="overflow-hidden">
+
+                    <li class="relative pb-10">
+                        <div class="absolute top-4 left-4 -ml-px h-full w-[2px] bg-slate-200 step-line transition-colors duration-300"
+                            id="line-step-1" aria-hidden="true"></div>
+                        <a href="javascript:void(0)" class="relative flex items-start group" id="nav-step-1"
+                            onclick="goToStep(1)">
+                            <span class="h-9 flex items-center" aria-hidden="true">
+                                <span id="circle-step-1"
+                                    class="step-circle relative z-10 w-8 h-8 flex items-center justify-center bg-white border-2 border-slate-300 rounded-full transition-all duration-300 group-hover:border-slate-400 shadow-sm">
+                                    <span id="num-step-1"
+                                        class="step-num text-slate-500 font-semibold text-xs transition-colors duration-300">1</span>
+                                    <svg id="check-step-1" class="step-check hidden w-4 h-4 text-white"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="ml-4 min-w-0 flex flex-col mt-2">
+                                <span id="text-step-1"
+                                    class="step-text text-sm font-semibold tracking-wide text-slate-500 transition-colors duration-300">General
+                                    Info</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="relative pb-10">
+                        <div class="absolute top-4 left-4 -ml-px h-full w-[2px] bg-slate-200 step-line transition-colors duration-300"
+                            id="line-step-2" aria-hidden="true"></div>
+                        <a href="javascript:void(0)" class="relative flex items-start group" id="nav-step-2"
+                            onclick="goToStep(2)">
+                            <span class="h-9 flex items-center" aria-hidden="true">
+                                <span id="circle-step-2"
+                                    class="step-circle relative z-10 w-8 h-8 flex items-center justify-center bg-white border-2 border-slate-300 rounded-full transition-all duration-300 group-hover:border-slate-400 shadow-sm">
+                                    <span id="num-step-2"
+                                        class="step-num text-slate-500 font-semibold text-xs transition-colors duration-300">2</span>
+                                    <svg id="check-step-2" class="step-check hidden w-4 h-4 text-white"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="ml-4 min-w-0 flex flex-col mt-2">
+                                <span id="text-step-2"
+                                    class="step-text text-sm font-semibold tracking-wide text-slate-500 transition-colors duration-300">Resources</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="relative pb-10">
+                        <div class="absolute top-4 left-4 -ml-px h-full w-[2px] bg-slate-200 step-line transition-colors duration-300"
+                            id="line-step-3" aria-hidden="true"></div>
+                        <a href="javascript:void(0)" class="relative flex items-start group" id="nav-step-3"
+                            onclick="goToStep(3)">
+                            <span class="h-9 flex items-center" aria-hidden="true">
+                                <span id="circle-step-3"
+                                    class="step-circle relative z-10 w-8 h-8 flex items-center justify-center bg-white border-2 border-slate-300 rounded-full transition-all duration-300 group-hover:border-slate-400 shadow-sm">
+                                    <span id="num-step-3"
+                                        class="step-num text-slate-500 font-semibold text-xs transition-colors duration-300">3</span>
+                                    <svg id="check-step-3" class="step-check hidden w-4 h-4 text-white"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="ml-4 min-w-0 flex flex-col mt-2">
+                                <span id="text-step-3"
+                                    class="step-text text-sm font-semibold tracking-wide text-slate-500 transition-colors duration-300">Expenses</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="relative pb-10">
+                        <div class="absolute top-4 left-4 -ml-px h-full w-[2px] bg-slate-200 step-line transition-colors duration-300"
+                            id="line-step-4" aria-hidden="true"></div>
+                        <a href="javascript:void(0)" class="relative flex items-start group" id="nav-step-4"
+                            onclick="goToStep(4)">
+                            <span class="h-9 flex items-center" aria-hidden="true">
+                                <span id="circle-step-4"
+                                    class="step-circle relative z-10 w-8 h-8 flex items-center justify-center bg-white border-2 border-slate-300 rounded-full transition-all duration-300 group-hover:border-slate-400 shadow-sm">
+                                    <span id="num-step-4"
+                                        class="step-num text-slate-500 font-semibold text-xs transition-colors duration-300">4</span>
+                                    <svg id="check-step-4" class="step-check hidden w-4 h-4 text-white"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="ml-4 min-w-0 flex flex-col mt-2">
+                                <span id="text-step-4"
+                                    class="step-text text-sm font-semibold tracking-wide text-slate-500 transition-colors duration-300">Units
+                                    Matrix</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="relative pb-10">
+                        <div class="absolute top-4 left-4 -ml-px h-full w-[2px] bg-slate-200 step-line transition-colors duration-300"
+                            id="line-step-5" aria-hidden="true"></div>
+                        <a href="javascript:void(0)" class="relative flex items-start group" id="nav-step-5"
+                            onclick="goToStep(5)">
+                            <span class="h-9 flex items-center" aria-hidden="true">
+                                <span id="circle-step-5"
+                                    class="step-circle relative z-10 w-8 h-8 flex items-center justify-center bg-white border-2 border-slate-300 rounded-full transition-all duration-300 group-hover:border-slate-400 shadow-sm">
+                                    <span id="num-step-5"
+                                        class="step-num text-slate-500 font-semibold text-xs transition-colors duration-300">5</span>
+                                    <svg id="check-step-5" class="step-check hidden w-4 h-4 text-white"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="ml-4 min-w-0 flex flex-col mt-2">
+                                <span id="text-step-5"
+                                    class="step-text text-sm font-semibold tracking-wide text-slate-500 transition-colors duration-300">CEMS</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="relative pb-10">
+                        <div class="absolute top-4 left-4 -ml-px h-full w-[2px] bg-slate-200 step-line transition-colors duration-300"
+                            id="line-step-6" aria-hidden="true"></div>
+                        <a href="javascript:void(0)" class="relative flex items-start group" id="nav-step-6"
+                            onclick="goToStep(6)">
+                            <span class="h-9 flex items-center" aria-hidden="true">
+                                <span id="circle-step-6"
+                                    class="step-circle relative z-10 w-8 h-8 flex items-center justify-center bg-white border-2 border-slate-300 rounded-full transition-all duration-300 group-hover:border-slate-400 shadow-sm">
+                                    <span id="num-step-6"
+                                        class="step-num text-slate-500 font-semibold text-xs transition-colors duration-300">6</span>
+                                    <svg id="check-step-6" class="step-check hidden w-4 h-4 text-white"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="ml-4 min-w-0 flex flex-col mt-2">
+                                <span id="text-step-6"
+                                    class="step-text text-sm font-semibold tracking-wide text-slate-500 transition-colors duration-300">CEQMS</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="relative pb-10">
+                        <div class="absolute top-4 left-4 -ml-px h-full w-[2px] bg-slate-200 step-line transition-colors duration-300"
+                            id="line-step-7" aria-hidden="true"></div>
+                        <a href="javascript:void(0)" class="relative flex items-start group" id="nav-step-7"
+                            onclick="goToStep(7)">
+                            <span class="h-9 flex items-center" aria-hidden="true">
+                                <span id="circle-step-7"
+                                    class="step-circle relative z-10 w-8 h-8 flex items-center justify-center bg-white border-2 border-slate-300 rounded-full transition-all duration-300 group-hover:border-slate-400 shadow-sm">
+                                    <span id="num-step-7"
+                                        class="step-num text-slate-500 font-semibold text-xs transition-colors duration-300">7</span>
+                                    <svg id="check-step-7" class="step-check hidden w-4 h-4 text-white"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="ml-4 min-w-0 flex flex-col mt-2">
+                                <span id="text-step-7"
+                                    class="step-text text-sm font-semibold tracking-wide text-slate-500 transition-colors duration-300">CAAQMS</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="relative pb-10">
+                        <div class="absolute top-4 left-4 -ml-px h-full w-[2px] bg-slate-200 step-line transition-colors duration-300"
+                            id="line-step-8" aria-hidden="true"></div>
+                        <a href="javascript:void(0)" class="relative flex items-start group" id="nav-step-8"
+                            onclick="goToStep(8)">
+                            <span class="h-9 flex items-center" aria-hidden="true">
+                                <span id="circle-step-8"
+                                    class="step-circle relative z-10 w-8 h-8 flex items-center justify-center bg-white border-2 border-slate-300 rounded-full transition-all duration-300 group-hover:border-slate-400 shadow-sm">
+                                    <span id="num-step-8"
+                                        class="step-num text-slate-500 font-semibold text-xs transition-colors duration-300">8</span>
+                                    <svg id="check-step-8" class="step-check hidden w-4 h-4 text-white"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="ml-4 min-w-0 flex flex-col mt-2">
+                                <span id="text-step-8"
+                                    class="step-text text-sm font-semibold tracking-wide text-slate-500 transition-colors duration-300">Challenges</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="relative ">
+
+                        <a href="javascript:void(0)" class="relative flex items-start group" id="nav-step-9"
+                            onclick="goToStep(9)">
+                            <span class="h-9 flex items-center" aria-hidden="true">
+                                <span id="circle-step-9"
+                                    class="step-circle relative z-10 w-8 h-8 flex items-center justify-center bg-white border-2 border-slate-300 rounded-full transition-all duration-300 group-hover:border-slate-400 shadow-sm">
+                                    <span id="num-step-9"
+                                        class="step-num text-slate-500 font-semibold text-xs transition-colors duration-300">9</span>
+                                    <svg id="check-step-9" class="step-check hidden w-4 h-4 text-white"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="ml-4 min-w-0 flex flex-col mt-2">
+                                <span id="text-step-9"
+                                    class="step-text text-sm font-semibold tracking-wide text-slate-500 transition-colors duration-300">Improvement</span>
+                            </span>
+                        </a>
+                    </li>
+                </ol>
+            </nav>
+        </aside>
+
+        <main
+            class="flex-1 min-w-0 bg-white shadow-[0_2px_18px_rgba(0,0,0,0.04)] ring-1 ring-slate-200 rounded-xl p-8 lg:p-10">
+            <form action="/submit_all" method="POST" id="surveyForm" onkeydown="return event.key != 'Enter';">
+
+
+                <div id="step-1" class="space-y-6">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">Phase 1: General Information</h2>
+                    <p class="text-slate-500 text-sm mb-6 pb-4 border-b border-slate-200">Please provide your industry
+                        details and contact information.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Industry Name *</label>
+                            <input type="text" name="industry_name" required class="w-full">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Type of Industry *</label>
+                            <select name="industry_type" id="industry_type" required onchange="toggleOther()"
+                                class="w-full">
+                                <option value="" disabled selected>Select an industry...</option>
+                                {% for type in industry_types %}
+                                <option value="{{ type }}">{{ type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div id="other_industry_div" class="hidden">
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Specify 'Other'
+                                Industry</label>
+                            <input type="text" name="industry_type_other" id="industry_type_other" class="w-full">
+                        </div>
+
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Address *</label>
+                            <textarea name="address" rows="3" required class="w-full"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">District *</label>
+                            <input type="text" name="district" required class="w-full">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">State / UT *</label>
+                            <select name="state" required class="w-full">
+                                <option value="" disabled selected>Select State...</option>
+                                {% for state in states %}
+                                <option value="{{ state }}">{{ state }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Contact Person
+                                (Environment)
+                                *</label>
+                            <input type="text" name="contact_person" required class="w-full">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Designation</label>
+                            <input type="text" name="designation" class="w-full">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Contact Number *</label>
+                            <input type="text" name="contact_number" required minlength="10" class="w-full">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Email *</label>
+                            <input type="email" name="email" required class="w-full">
+                        </div>
+                    </div>
+
+                    <div class="pt-6 mt-6 border-t flex justify-end">
+                        <button type="button" onclick="goToStep(2)"
+                            class="bg-ceew-teal text-white font-semibold py-2.5 px-8 rounded-full shadow-md shadow-ceew-teal/20 hover:bg-ceew-cyan hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex items-center gap-2">Next
+                            Step <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg></button>
+                    </div>
+                </div>
+
+                <div id="step-2" class="hidden-step space-y-6">
+                    <h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">Resource
+                        availability for O&M of real-time monitors at plant</h2>
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <tbody>
+                                <tr>
+                                    <td class="question-col">Total number of #Units in the plant</td>
+                                    <td class="input-col"><input type="number" name="total_units" id="total_units_input"
+                                            min="1" required></td>
+                                </tr>
+                                <tr>
+                                    <td class="question-col">Total number of Technical staff in the Environment Dept.
+                                    </td>
+                                    <td class="input-col"><input type="number" name="tech_staff_env_dept" min="0"
+                                            required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="question-col">Which department looks after CEMS, CEQMS and CAAQMS
+                                        operation &
+                                        maintenance?</td>
+                                    <td class="input-col"><input type="text" name="dept_looks_after_om" required></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="section-header">In-house Technical staff for CEMS, CEQMS and
+                                        CAAQMS
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="question-col pl-8">Number</td>
+                                    <td class="input-col"><input type="number" name="inhouse_staff_number" min="0"
+                                            required>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="question-col pl-8">Specify responsibilities for CEMS, CEQMS and CAAQMS
+                                    </td>
+                                    <td class="input-col"><textarea name="inhouse_responsibilities" rows="2"
+                                            required></textarea></td>
+                                </tr>
+                                <tr>
+                                    <td class="question-col pl-8">Any training (s) on CEMS, CEQMS and CAAQMS attended ?
+                                    </td>
+                                    <td class="input-col"><input type="text" name="inhouse_training_attended"
+                                            placeholder="Specify details" required></td>
+                                </tr>
+                                <tr>
+                                    <td class="question-col font-medium">Technical staff deployed by vendor for CEMS,
+                                        CEQMS,
+                                        CAAQMS? <br><span class="text-sm font-normal text-gray-500">Yes/no</span></td>
+                                    <td class="input-col"><select name="vendor_staff_deployed" required>
+                                            <option value="" disabled selected></option>
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select></td>
+                                </tr>
+                                <tr>
+                                    <td class="question-col pl-8">Name of the vendor (s)</td>
+                                    <td class="input-col"><input type="text" name="vendor_name"></td>
+                                </tr>
+                                <tr>
+                                    <td class="question-col pl-8">Responsibilities of the deployed person</td>
+                                    <td class="input-col"><textarea name="vendor_responsibilities" rows="2"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="question-col pl-8">Person attended any training (s) ?</td>
+                                    <td class="input-col"><select name="vendor_training_attended">
+                                            <option value="" disabled selected></option>
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select></td>
+                                </tr>
+                                <tr>
+                                    <td class="question-col pl-8">If yes, brief of the training programme</td>
+                                    <td class="input-col"><input type="text" name="vendor_training_brief"></td>
+                                </tr>
+                                <tr>
+                                    <td class="question-col">If no staff deployed by vendor, what is the frequency of
+                                        (CEMS,
+                                        CEQMS, CAAQMS) vendor's visit to facility?</td>
+                                    <td class="input-col"><input type="text" name="vendor_visit_frequency"
+                                            placeholder="e.g. monthly, 3 monthly"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pt-6 border-t flex justify-between"><button type="button" onclick="goToStep(1)"
+                            class="bg-slate-200 text-slate-700 font-bold py-2 px-8 rounded-lg hover:bg-slate-300 hover:shadow transition-all duration-200">🡄
+                            Back</button><button type="button" onclick="goToStep(3)"
+                            class="bg-ceew-teal text-white font-semibold py-2.5 px-8 rounded-full shadow-md shadow-ceew-teal/20 hover:bg-ceew-cyan hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex items-center gap-2">Next
+                            Step <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg></button></div>
+                </div>
+
+                <div id="step-3" class="hidden-step space-y-6">
+                    <h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">Expenses on
+                        monitoring/real-time monitoring at plant</h2>
+                    <div class="table-wrapper">
+                        <table class="custom-table expenses-table">
+                            <thead>
+                                <tr>
+                                    <th colspan="2" class="text-left">Expenditure by plant</th>
+                                    <th>on CEMS</th>
+                                    <th>on CEQMS</th>
+                                    <th>on CAAQMS</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-medium w-1/4">Purchase and installation</td>
+                                    <td class="text-sm text-gray-600 w-1/6"><span
+                                            class="text-[0.7rem] font-medium text-slate-500 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded-md">Overall
+                                            till date</span></td>
+                                    <td><input type="number" step="any" name="purchase_cems"></td>
+                                    <td><input type="number" step="any" name="purchase_ceqms"></td>
+                                    <td><input type="number" step="any" name="purchase_caaqms"></td>
+                                    <td><input type="number" step="any" name="purchase_total"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">On Operation and Maintenance</td>
+                                    <td class="text-sm text-gray-600"><span
+                                            class="text-[0.7rem] font-medium text-slate-500 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded-md">Yearly
+                                            average</span></td>
+                                    <td><input type="number" step="any" name="om_cems"></td>
+                                    <td><input type="number" step="any" name="om_ceqms"></td>
+                                    <td><input type="number" step="any" name="om_caaqms"></td>
+                                    <td><input type="number" step="any" name="om_total"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">On Data Handling</td>
+                                    <td class="text-sm text-gray-600"><span
+                                            class="text-[0.7rem] font-medium text-slate-500 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded-md">Yearly
+                                            average</span></td>
+                                    <td><input type="number" step="any" name="data_cems"></td>
+                                    <td><input type="number" step="any" name="data_ceqms"></td>
+                                    <td><input type="number" step="any" name="data_caaqms"></td>
+                                    <td><input type="number" step="any" name="data_total"></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium border-b-2">On Lab based monitoring</td>
+                                    <td class="text-sm text-gray-600 border-b-2"><span
+                                            class="text-[0.7rem] font-medium text-slate-500 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded-md">Yearly
+                                            average</span></td>
+                                    <td colspan="3" class="text-right text-sm text-gray-600 italic border-b-2 pr-4">
+                                        Overall
+                                        on
+                                        pollution monitoring and report ➜</td>
+                                    <td class="border-b-2"><input type="number" step="any" name="lab_total"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pt-6 mt-6 flex justify-between"><button type="button" onclick="goToStep(2)"
+                            class="bg-slate-200 text-slate-700 font-bold py-2 px-8 rounded-lg hover:bg-slate-300 hover:shadow transition-all duration-200">🡄
+                            Back</button><button type="button" onclick="goToStep(4)"
+                            class="bg-ceew-teal text-white font-semibold py-2.5 px-8 rounded-full shadow-md shadow-ceew-teal/20 hover:bg-ceew-cyan hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex items-center gap-2">Next
+                            Step <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg></button></div>
+                </div>
+
+                <div id="step-4" class="hidden-step space-y-6">
+                    <h2 class="text-2xl font-bold text-ceew-teal mb-4 pb-4 border-b-2 border-slate-100">Table: Monitor
+                        Implementation by Unit
+                    </h2>
+                    <div class="table-wrapper overflow-x-auto">
+                        <table class="custom-table wide-matrix">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="text-center align-middle">Number of Units</th>
+                                    <th rowspan="2" class="text-center align-middle">Name/operation</th>
+                                    <th rowspan="2" class="text-center align-middle">Capacity/Size</th>
+                                    <th rowspan="2" class="text-center align-middle">Year of Commissioning</th>
+                                    <th colspan="3" class="group-header text-center align-middle">Stack Emission
+                                        Parameters
+                                        being monitored</th>
+                                    <th colspan="2" class="group-header text-center align-middle">Effluent Parameters
+                                        being
+                                        monitored</th>
+                                    <th colspan="3" class="group-header text-center align-middle">AAQ Parameters being
+                                        monitored</th>
+                                </tr>
+                                <tr>
+                                    <th class="text-center align-middle">Using CEMS (Y/N)</th>
+                                    <th class="text-center align-middle">Using third party lab</th>
+                                    <th class="text-center align-middle">Frequency of monitoring by lab</th>
+                                    <th class="text-center align-middle">Using CEQMS</th>
+                                    <th class="text-center align-middle">Using third party lab</th>
+                                    <th class="text-center align-middle">Using CAAQMS</th>
+                                    <th class="text-center align-middle">Using third party lab</th>
+                                    <th class="text-center align-middle">Frequency of monitoring by lab</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dynamic-units-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div class="pt-6 mt-6 border-t flex justify-between"><button type="button" onclick="goToStep(3)"
+                            class="bg-slate-200 text-slate-700 font-bold py-2 px-8 rounded-lg hover:bg-slate-300 hover:shadow transition-all duration-200">🡄
+                            Back</button><button type="button" onclick="goToStep(5)"
+                            class="bg-ceew-teal text-white font-semibold py-2.5 px-8 rounded-full shadow-md shadow-ceew-teal/20 hover:bg-ceew-cyan hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex items-center gap-2">Next
+                            Step <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg></button></div>
+                </div>
+
+                <div id="step-5" class="hidden-step space-y-6">
+                    <h2 class="text-2xl font-bold text-ceew-teal mb-4 pb-4 border-b-2 border-slate-100">Table: CEMS
+                        Details
+                        at plant</h2>
+                    <div id="cems-dynamic-container"></div>
+                    <div class="pt-6 mt-6 border-t flex justify-between"><button type="button" onclick="goToStep(4)"
+                            class="bg-slate-200 text-slate-700 font-bold py-2 px-8 rounded-lg hover:bg-slate-300 hover:shadow transition-all duration-200">🡄
+                            Back</button><button type="button" onclick="goToStep(6)"
+                            class="bg-ceew-teal text-white font-semibold py-2.5 px-8 rounded-full shadow-md shadow-ceew-teal/20 hover:bg-ceew-cyan hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex items-center gap-2">Next
+                            Step <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg></button></div>
+                </div>
+
+                <div id="step-6" class="hidden-step space-y-6">
+                    <h2 class="text-2xl font-bold text-ceew-teal mb-4 pb-4 border-b-2 border-slate-100">Table: CEQMS
+                        Details
+                        at plant</h2>
+                    <div id="ceqms-dynamic-container"></div>
+                    <div class="pt-6 mt-6 border-t flex justify-between"><button type="button" onclick="goToStep(5)"
+                            class="bg-slate-200 text-slate-700 font-bold py-2 px-8 rounded-lg hover:bg-slate-300 hover:shadow transition-all duration-200">🡄
+                            Back</button><button type="button" onclick="goToStep(7)"
+                            class="bg-ceew-teal text-white font-semibold py-2.5 px-8 rounded-full shadow-md shadow-ceew-teal/20 hover:bg-ceew-cyan hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex items-center gap-2">Next
+                            Step <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg></button></div>
+                </div>
+
+                <div id="step-7" class="hidden-step space-y-6">
+                    <div id="caaqms-dynamic-container"></div>
+                    <div class="pt-6 mt-6 border-t flex justify-between"><button type="button" onclick="goToStep(6)"
+                            class="bg-slate-200 text-slate-700 font-bold py-2 px-8 rounded-lg hover:bg-slate-300 hover:shadow transition-all duration-200">🡄
+                            Back</button><button type="button" onclick="goToStep(8)"
+                            class="bg-ceew-teal text-white font-semibold py-2.5 px-8 rounded-full shadow-md shadow-ceew-teal/20 hover:bg-ceew-cyan hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex items-center gap-2">Next
+                            Step <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg></button></div>
+                </div>
+
+                <div id="step-8" class="hidden-step space-y-6">
+                    <h2 class="text-2xl font-bold text-ceew-teal mb-4 pb-4 border-b-2 border-slate-100">Table: Key
+                        challenges faced in the
+                        Implementation of CEMS, CEQMS and CAAQMS</h2>
+                    <div class="table-wrapper overflow-x-auto pb-4">
+                        <table class="custom-table challenge-matrix">
+                            <thead>
+                                <tr>
+                                    <th class="w-1/6 text-center align-middle">Implementation Challenges</th>
+                                    <th></th>
+                                    <th class="text-center align-middle">Challenge 1</th>
+                                    <th class="text-center align-middle">Challenge 2</th>
+                                    <th class="text-center align-middle">Challenge 3</th>
+                                    <th class="text-center align-middle">What/who helped most?</th>
+                                    <th class="text-center align-middle">Explain briefly, how it helped?</th>
+                                    <th class="w-1/6 text-center align-middle">What regulatory improvement or govt.
+                                        support
+                                        can help?</th>
+                                </tr>
+                            </thead>
+                            <tbody id="challenges-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div class="pt-6 mt-6 border-t flex justify-between"><button type="button" onclick="goToStep(7)"
+                            class="bg-slate-200 text-slate-700 font-bold py-2 px-8 rounded-lg hover:bg-slate-300 hover:shadow transition-all duration-200">🡄
+                            Back</button><button type="button" onclick="goToStep(9)"
+                            class="bg-ceew-teal text-white font-semibold py-2.5 px-8 rounded-full shadow-md shadow-ceew-teal/20 hover:bg-ceew-cyan hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex items-center gap-2">Next
+                            Step <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg></button></div>
+                </div>
+
+                <div id="step-9" class="hidden-step space-y-6">
+                    <h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">Improvement
+                        expected related to CEMS, CEQMS, CAAQMS</h2>
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <tbody>
+                                <tr>
+                                    <td rowspan="5" class="w-1/2 align-top text-gray-800 font-medium">Suggest what
+                                        improvement
+                                        government/CPCB/SPCB shall bring for better implementation and use of
+                                        CEMS.<br><span class="text-sm text-gray-500 font-normal">Specify top 5
+                                            suggestions</span></td>
+                                    <td class="w-12 text-center font-bold text-gray-700 ">1</td>
+                                    <td><input type="text" name="suggestion_1" required placeholder="Top suggestion...">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center font-bold text-gray-700 ">2</td>
+                                    <td><input type="text" name="suggestion_2"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center font-bold text-gray-700 ">3</td>
+                                    <td><input type="text" name="suggestion_3"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center font-bold text-gray-700 ">4</td>
+                                    <td><input type="text" name="suggestion_4"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center font-bold text-gray-700 ">5</td>
+                                    <td><input type="text" name="suggestion_5"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pt-6 mt-6 border-t flex justify-between"><button type="button" onclick="goToStep(8)"
+                            class="bg-slate-200 text-slate-700 font-bold py-2 px-8 rounded-lg hover:bg-slate-300 hover:shadow transition-all duration-200">🡄
+                            Back</button><button type="submit"
+                            class="bg-ceew-green text-white font-bold py-2 px-8 rounded hover:hover:opacity-90 bg-ceew-green transition shadow">Submit
+                            Final Survey ✔</button></div>
+                </div>
+
+            </form>
+    </div>
+
+    <script>
+        function toggleOther() {
+            const select = document.getElementById("industry_type");
+            const otherInput = document.getElementById("industry_type_other");
+            if (select.value === "Other") {
+                document.getElementById("other_industry_div").classList.remove("hidden");
+                otherInput.required = true;
+            } else {
+                document.getElementById("other_industry_div").classList.add("hidden");
+                otherInput.required = false;
+                otherInput.value = "";
+            }
+        }
+
+        function generateDynamicUnits() {
+            const totalUnits = parseInt(document.getElementById('total_units_input').value) || 1;
+            const tbody = document.getElementById('dynamic-units-tbody');
+            tbody.innerHTML = '';
+            for (let i = 1; i <= totalUnits; i++) {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="font-bold text-center  text-gray-700">Unit #${i}<input type="hidden" name="unit_number" value="Unit #${i}"></td>
+                        <td><input type="text" name="name_operation" placeholder="Unit name"></td><td><input type="text" name="capacity_size"></td><td><input type="number" name="year_commissioning" placeholder="YYYY"></td>
+                        <td><select name="stack_using_cems" class="bg-slate-50 border-ceew-cyan/30 font-bold"><option value=""></option><option value="Y">Y</option><option value="N">N</option></select></td><td><select name="stack_third_party"><option value=""></option><option>Y</option><option>N</option></select></td><td><input type="text" name="stack_frequency"></td>
+                        <td><select name="effluent_using_ceqms" class="bg-slate-50 border-ceew-cyan/30 font-bold"><option value=""></option><option value="Y">Y</option><option value="N">N</option></select></td><td><select name="effluent_third_party"><option value=""></option><option>Y</option><option>N</option></select></td>
+                        <td><select name="aaq_using_caaqms" class="bg-slate-50 border-ceew-cyan/30 font-bold"><option value=""></option><option value="Y">Y</option><option value="N">N</option></select></td><td><select name="aaq_third_party"><option value=""></option><option>Y</option><option>N</option></select></td><td><input type="text" name="aaq_frequency"></td>
+                    </tr>
+                `;
+            }
+        }
+
+        function removeLastRowById(tbodyId, minRows) {
+            const tbody = document.getElementById(tbodyId);
+            if (tbody && tbody.children.length > minRows) tbody.lastElementChild.remove();
+        }
+        function removeLastRowWithRowspan(tbodyId, rowspanId, minRowsTotal) {
+            const tbody = document.getElementById(tbodyId);
+            if (tbody && tbody.children.length > minRowsTotal) {
+                tbody.lastElementChild.remove();
+                const td = document.getElementById(rowspanId);
+                if (td && td.rowSpan > 1) td.rowSpan -= 1;
+            }
+        }
+
+        function generateCemsDetails() {
+            const container = document.getElementById('cems-dynamic-container');
+            container.innerHTML = '';
+            let hasCems = false;
+
+            const rows = document.getElementById('dynamic-units-tbody').querySelectorAll('tr');
+            rows.forEach((row) => {
+                const usingCemsSelect = row.querySelector('select[name="stack_using_cems"]');
+                if (usingCemsSelect && usingCemsSelect.value === 'Y') {
+                    hasCems = true;
+                    const unitTitle = `${row.querySelector('input[name="unit_number"]').value} - ${row.querySelector('input[name="name_operation"]').value || "Unnamed Unit"}`;
+                    container.insertAdjacentHTML('beforeend', `<div class="border border-ceew-cyan/30 rounded-lg shadow-sm bg-white overflow-hidden mb-8"><div class="bg-slate-100 px-5 py-3 font-bold text-ceew-teal border-b border-slate-200 text-[1.05rem]">${unitTitle}</div><div class="overflow-x-auto"><table class="custom-table cems-matrix text-xs"><thead><tr><th rowspan="2" class="align-middle text-center">Specify CEMS<br><span class="font-normal text-[11px]">(e.g. PM, SO2, Nox, etc.)</span></th><th rowspan="2" class="align-middle text-center">Average actual emission level from the stack<br><span class="font-normal text-[11px]">mg/Nm3</span></th><th colspan="5" class="bg-slate-200 align-middle text-center">Technology</th><th colspan="4" class="bg-slate-200 align-middle text-center">Installation</th><th colspan="2" class="bg-slate-200 align-middle text-center">Setting</th><th colspan="3" class="bg-slate-200 align-middle text-center">Physical Maintenance (cleaning, washing etc.)</th></tr><tr><th class="align-middle text-center">Brand</th><th class="align-middle text-center">Technology</th><th class="align-middle text-center">Vendor</th><th class="align-middle text-center">Certified/ Non-certified</th><th class="align-middle text-center">Extractive/ Insitu</th><th class="align-middle text-center">Year of installation</th><th class="align-middle text-center">Location of installation (duct/ stack)</th><th class="align-middle text-center">If installed in Stack, is it at 8D/2D position Yes/No</th><th class="align-middle text-center">If installed in duct, was Stratification tests done for duct? Yes/No</th><th class="align-middle text-center">Applicable limit/Norm (mg/Nm3)</th><th class="align-middle text-center">Set Monitoring Range</th><th class="align-middle text-center">Specify needed physical maintenances</th><th class="align-middle text-center">Who carries ?</th><th class="align-middle text-center">Average frequency</th></tr></thead><tbody>${createCemsRowHtml(unitTitle)}</tbody></table></div><div class=" p-4 border-t border-slate-200 flex justify-start gap-2"><button type="button" onclick="addCemsRow('${unitTitle.replace(/'/g, "\\'")}', this)" class="bg-white text-ceew-teal border border-ceew-cyan px-4 py-2 text-sm rounded hover:bg-slate-50 font-bold shadow-sm transition">+ Add Parameter Row</button><button type="button" onclick="const tb = this.closest('.border-ceew-cyan/30').querySelector('tbody'); if(tb.children.length>1) tb.lastElementChild.remove();" class="bg-white text-red-600 border border-red-200 px-4 py-2 text-sm rounded-full hover:bg-red-50 font-semibold shadow-sm hover:shadow transition-all">- Remove</button></div></div>`);
+                }
+            });
+
+            if (hasCems) {
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="mt-12 pt-8 border-t-2 border-dashed border-slate-200 space-y-6">
+                        <h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">CEMS Drift Check</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-6 rounded-lg shadow-sm ">
+                            <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Who carries drift check?</label><input type="text" name="drift_who_carries" placeholder="e.g. Vendor, in-house staff, automatic" class="mt-1 block w-full border-slate-200 border p-2 rounded"></div>
+                            <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">What all gas cylinders are available for drift checks?</label><input type="text" name="drift_available_cylinders" placeholder="Name parameters" class="mt-1 block w-full border-slate-200 border p-2 rounded"></div>
+                            <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Are calibration cylinders connected to analyzers?</label><select name="drift_cylinders_connected" class="mt-1 block w-full border-slate-200 border p-2 rounded"><option value=""></option><option>Yes</option><option>No</option></select></div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6">
+                            <div class="bg-slate-100 text-ceew-teal px-5 py-3 font-bold text-[1.05rem] border-b border-slate-200">Calibration Cylinders detail</div>
+                            <div class="overflow-x-auto">
+                                <table class="custom-table w-full">
+                                    <thead class="bg-slate-100"><tr><th class="text-center align-middle">Parameters</th><th class="text-center align-middle">Manufacturer/ Supplier (Specify)</th><th class="text-center align-middle">Concentration</th><th class="text-center align-middle">Expiry date</th></tr></thead>
+                                    <tbody id="cylinders-tbody">
+                                        ${['N2', 'SO2', 'NOx'].map(p => `<tr><td class="font-medium "><input type="hidden" name="cyl_parameter" value="${p}">${p}</td><td><input type="text" name="cyl_supplier"></td><td><input type="text" name="cyl_concentration"></td><td><input type="text" name="cyl_expiry" placeholder="DD-MM-YYYY"></td></tr>`).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class=" p-4 border-t border-slate-200 flex justify-start gap-2"><button type="button" onclick="addCylinderRow()" class="bg-white text-ceew-teal border border-ceew-cyan px-4 py-2 text-sm rounded hover:bg-slate-50 font-bold shadow-sm transition">+ Add Cylinder Parameter</button><button type="button" onclick="removeLastRowById('cylinders-tbody', 3)" class="bg-white text-red-600 border border-red-200 px-4 py-2 text-sm rounded-full hover:bg-red-50 font-semibold shadow-sm hover:shadow transition-all">- Remove</button></div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6">
+                            <div class="bg-slate-100 text-ceew-teal px-5 py-3 font-bold text-[1.05rem] border-b border-slate-200">CEMS Drift Details (Whichever is applicable)</div>
+                            <div class="overflow-x-auto">
+                                <table class="custom-table w-full min-w-[1000px]">
+                                    <thead class="bg-slate-100"><tr><th class="text-center align-middle">Parameters</th><th class="text-center align-middle">Zero drift frequency</th><th class="text-center align-middle">Time taken in Zero Drift check</th><th class="text-center align-middle">Zero drift check process</th><th class="text-center align-middle">Span drift frequency</th><th class="text-center align-middle">Time taken in Span Drift check</th><th class="text-center align-middle">Span check process</th></tr></thead>
+                                    <tbody id="drift-tbody">
+                                        ${['PM- Opacity', 'PM- Scatter', 'PM- Electrodynamic', 'SO2', 'NOX', 'HCL', 'HF', 'CO', 'CO2', 'NH3', 'Hg'].map(p => `<tr><td class="font-medium "><input type="hidden" name="drift_parameter" value="${p}">${p}</td><td><input type="text" name="drift_zero_freq"></td><td><input type="text" name="drift_zero_time"></td><td><input type="text" name="drift_zero_process"></td><td><input type="text" name="drift_span_freq"></td><td><input type="text" name="drift_span_time"></td><td><input type="text" name="drift_span_process"></td></tr>`).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class=" p-4 border-t border-slate-200 flex justify-start gap-2"><button type="button" onclick="addDriftRow()" class="bg-white text-ceew-teal border border-ceew-cyan px-4 py-2 text-sm rounded hover:bg-slate-50 font-bold shadow-sm transition">+ Add CEMS Parameter</button><button type="button" onclick="removeLastRowById('drift-tbody', 11)" class="bg-white text-red-600 border border-red-200 px-4 py-2 text-sm rounded-full hover:bg-red-50 font-semibold shadow-sm hover:shadow transition-all">- Remove</button></div>
+                        </div>
+                    </div>
+                `);
+
+                let pmHtml = `<tr><td rowspan="5" class=" text-center align-middle font-bold  w-1/6">PM CEMS<br><span class="font-normal text-[10px]">(whichever installed)</span></td><td class="text-left  font-medium "><input type="hidden" name="pm_calib_type" value="PM CEMS"><input type="hidden" name="pm_tech" value="Opacity meter">Opacity meter</td><td class=""><input type="text" name="pm_calib_who"></td><td class=""><input type="text" name="pm_calib_tests"></td><td class=""><input type="text" name="pm_recalib_who"></td><td class=""><input type="text" name="pm_recalib_pts"></td><td class=""><input type="text" name="pm_recalib_loads"></td><td class=""><input type="text" name="pm_recalib_int"></td><td class=""><input type="text" name="pm_data_who"></td><td class=""><input type="text" name="pm_data_freq"></td><td class=""><input type="text" name="pm_data_diff"></td></tr>`;
+                ['Forward Scattering', 'Backward scattering', 'Triboflow', 'Electrodynamic'].forEach(tech => {
+                    pmHtml += `<tr><td class="text-left  font-medium "><input type="hidden" name="pm_calib_type" value="PM CEMS"><input type="hidden" name="pm_tech" value="${tech}">${tech}</td><td class=""><input type="text" name="pm_calib_who"></td><td class=""><input type="text" name="pm_calib_tests"></td><td class=""><input type="text" name="pm_recalib_who"></td><td class=""><input type="text" name="pm_recalib_pts"></td><td class=""><input type="text" name="pm_recalib_loads"></td><td class=""><input type="text" name="pm_recalib_int"></td><td class=""><input type="text" name="pm_data_who"></td><td class=""><input type="text" name="pm_data_freq"></td><td class=""><input type="text" name="pm_data_diff"></td></tr>`;
+                });
+
+                let gasHtml = `<tr><td rowspan="6" id="gas-rowspan-td" class=" text-center align-middle font-bold  w-1/6">Gaseous CEMS<br><span class="font-normal text-[10px]">(whichever installed)</span></td><td class="text-left  font-medium "><input type="hidden" name="gas_calib_type" value="Gaseous CEMS"><input type="hidden" name="gas_cems_inst" value="SO2">SO2</td><td class=""><input type="text" name="gas_calib_who"></td><td class=""><input type="text" name="gas_calib_tests"></td><td class=""><input type="text" name="gas_recalib_who"></td><td class=""><input type="text" name="gas_recalib_tests"></td><td class=""><input type="text" name="gas_recalib_freq"></td><td class=""><select name="gas_remote_avail"><option value=""></option><option>Yes</option><option>No</option></select></td><td class=""><input type="text" name="gas_remote_carried"></td><td class=""><input type="text" name="gas_data_who"></td><td class=""><input type="text" name="gas_data_freq"></td></tr>`;
+                ['NOx', 'HCL/HF', 'NH3', 'CO', 'CO2'].forEach(tech => {
+                    gasHtml += `<tr><td class="text-left  font-medium "><input type="hidden" name="gas_calib_type" value="Gaseous CEMS"><input type="hidden" name="gas_cems_inst" value="${tech}">${tech}</td><td class=""><input type="text" name="gas_calib_who"></td><td class=""><input type="text" name="gas_calib_tests"></td><td class=""><input type="text" name="gas_recalib_who"></td><td class=""><input type="text" name="gas_recalib_tests"></td><td class=""><input type="text" name="gas_recalib_freq"></td><td class=""><select name="gas_remote_avail"><option value=""></option><option>Yes</option><option>No</option></select></td><td class=""><input type="text" name="gas_remote_carried"></td><td class=""><input type="text" name="gas_data_who"></td><td class=""><input type="text" name="gas_data_freq"></td></tr>`;
+                });
+
+                container.insertAdjacentHTML('beforeend', `<div class="mt-12 pt-8 border-t-2 border-dashed border-slate-200 space-y-6"><h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">CEMS Calibration and Recalibration</h2><div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6"><div class="bg-slate-100 text-ceew-teal px-5 py-3 font-bold text-[1.05rem] border-b border-slate-200">Calibration and recalibration - PM</div><div class="overflow-x-auto"><table class="custom-table min-w-[1500px] text-xs text-center border-collapse "><thead class="bg-slate-100"><tr><th rowspan="2" class="align-middle text-center ">PM CEMS<br><span class="font-normal text-[11px]">(whichever installed)</span></th><th rowspan="2" class="align-middle text-center ">Technology installed</th><th colspan="2" class="bg-slate-200 align-middle text-center ">Calibration during installation</th><th colspan="4" class="bg-slate-200 align-middle text-center ">Recalibration</th><th colspan="3" class="bg-slate-200 align-middle text-center ">Data comparison with Reference method</th></tr><tr><th class="align-middle text-center ">Who carries calibration ?<br><span class="font-normal text-[11px]">(plant, manufacturer, supplier, lab)</span></th><th class="align-middle text-center ">Tests carried<br><span class="font-normal text-[11px]">(Specify e.g.- stratification, iso-kinetic sampling, RRA)</span></th><th class="align-middle text-center ">Who carries ?<br><span class="font-normal text-[11px]">(plant, manufacturer, supplier, lab)</span></th><th class="align-middle text-center ">How many points iso-kinetic sampling being carried?<br><span class="font-normal text-[11px]">(e.g. 2points, 3 points )</span></th><th class="align-middle text-center ">How many loads iso-kinetic sampling being carried?<br><span class="font-normal text-[11px]">(e.g. Single load, 2 loads, 3 loads)</span></th><th class="align-middle text-center ">Recalibration interval<br><span class="font-normal text-[11px]">(e.g. 3 months/6 months)</span></th><th class="align-middle text-center ">Who carries/d?<br><span class="font-normal text-[11px]">(plant, manufacturer, supplier, lab)</span></th><th class="align-middle text-center ">Frequency<br><span class="font-normal text-[11px]">(e.g. Monthly/3 monthly/6 monthly)</span></th><th class="align-middle text-center ">Average % Difference<br><span class="font-normal text-[11px]">(e.g. 2%, 5%, 10% etc)</span></th></tr></thead><tbody>${pmHtml}</tbody></table></div></div><div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6"><div class="bg-slate-100 text-ceew-teal px-5 py-3 font-bold text-[1.05rem] border-b border-slate-200">Calibration and Recalibration - Gas</div><div class="overflow-x-auto"><table class="custom-table min-w-[1500px] text-xs text-center border-collapse "><thead class="bg-slate-100"><tr><th rowspan="2" class="align-middle text-center ">Gaseous CEMS<br><span class="font-normal text-[11px]">(whichever installed)</span></th><th rowspan="2" class="align-middle text-center ">CEMS installed</th><th colspan="2" class="bg-slate-200 align-middle text-center ">Calibration during installation</th><th colspan="5" class="bg-slate-200 align-middle text-center ">Recalibration</th><th colspan="2" class="bg-slate-200 align-middle text-center ">Data comparison with Reference method</th></tr><tr><th class="align-middle text-center ">Who carries calibration ?<br><span class="font-normal text-[11px]">(plant, manufacturer, supplier, lab)</span></th><th class="align-middle text-center ">Tests carries/d<br><span class="font-normal text-[11px]">(e.g.- stratification, iso-kinetic sampling, RRA)</span></th><th class="align-middle text-center ">Who carries ?<br><span class="font-normal text-[11px]">(e.g. plant, manufacturer, supplier, lab)</span></th><th class="align-middle text-center ">Tests carried<br><span class="font-normal text-[11px]">(Specify e.g.- zero drift, span drift, linearity, RATA)</span></th><th class="align-middle text-center ">Frequency of recalibration<br><span class="font-normal text-[11px]">(e.g. 3 monthly/6 monthly)</span></th><th class="align-middle text-center ">Remote calibration facility availability<br><span class="font-normal text-[11px]">(Yes/No)</span></th><th class="align-middle text-center ">Have Remote calibration been carried ever?<br><span class="font-normal text-[11px]">(Yes/No) (By whom- CPCB or SPCB) ?</span></th><th class="align-middle text-center ">Who carries/d?<br><span class="font-normal text-[11px]">(plant, manufacturer, supplier, lab)</span></th><th class="align-middle text-center ">Frequency<br><span class="font-normal text-[11px]">(e.g. Monthly/3 monthly/6 monthly)</span></th></tr></thead><tbody id="calib-gas-tbody">${gasHtml}</tbody></table></div><div class=" p-4 border-t border-slate-200 flex justify-start gap-2"><button type="button" onclick="addGasCalibrationRow()" class="bg-white text-ceew-teal border border-ceew-cyan px-4 py-2 text-sm rounded hover:bg-slate-50 font-bold shadow-sm transition">+ Add Gas Parameter</button><button type="button" onclick="removeLastRowWithRowspan('calib-gas-tbody', 'gas-rowspan-td', 6)" class="bg-white text-red-600 border border-red-200 px-4 py-2 text-sm rounded-full hover:bg-red-50 font-semibold shadow-sm hover:shadow transition-all">- Remove</button></div></div></div>`);
+
+                let maintPmHtml = `<tr><td rowspan="5" class=" text-center align-middle font-bold  w-1/4">What maintenance activities are carried for PM CEMS- if installed</td><td class="text-left  font-medium "><input type="hidden" name="maint_cems_type" value="PM CEMS"><input type="hidden" name="maint_tech" value="Opacity meter">Opacity meter</td><td class=""><input type="text" name="maint_activities"></td><td class=""><input type="text" name="maint_frequency"></td><td class=""><input type="text" name="maint_who"></td><td class=""><input type="text" name="maint_stock"></td><td class=""><input type="text" name="maint_contract"></td><td class=""><input type="text" name="maint_challenges"></td></tr>`;
+                ['Forward Scattering', 'Backward scattering', 'Triboflow', 'Electrodynamic'].forEach(tech => {
+                    maintPmHtml += `<tr><td class="text-left  font-medium "><input type="hidden" name="maint_cems_type" value="PM CEMS"><input type="hidden" name="maint_tech" value="${tech}">${tech}</td><td class=""><input type="text" name="maint_activities"></td><td class=""><input type="text" name="maint_frequency"></td><td class=""><input type="text" name="maint_who"></td><td class=""><input type="text" name="maint_stock"></td><td class=""><input type="text" name="maint_contract"></td><td class=""><input type="text" name="maint_challenges"></td></tr>`;
+                });
+
+                let maintGasHtml = `<tr><td rowspan="6" id="maint-gas-rowspan-td" class=" text-center align-middle font-bold ">What maintenance activities are carried for Gaseous CEMS- if installed</td><td class="text-left  font-medium "><input type="hidden" name="maint_cems_type" value="Gaseous CEMS"><input type="hidden" name="maint_tech" value="SO2">SO2</td><td class=""><input type="text" name="maint_activities"></td><td class=""><input type="text" name="maint_frequency"></td><td class=""><input type="text" name="maint_who"></td><td class=""><input type="text" name="maint_stock"></td><td class=""><input type="text" name="maint_contract"></td><td class=""><input type="text" name="maint_challenges"></td></tr>`;
+                ['NOx', 'HCL/HF', 'NH3', 'CO', 'CO2'].forEach(tech => {
+                    maintGasHtml += `<tr><td class="text-left  font-medium "><input type="hidden" name="maint_cems_type" value="Gaseous CEMS"><input type="hidden" name="maint_tech" value="${tech}">${tech}</td><td class=""><input type="text" name="maint_activities"></td><td class=""><input type="text" name="maint_frequency"></td><td class=""><input type="text" name="maint_who"></td><td class=""><input type="text" name="maint_stock"></td><td class=""><input type="text" name="maint_contract"></td><td class=""><input type="text" name="maint_challenges"></td></tr>`;
+                });
+
+                container.insertAdjacentHTML('beforeend', `<div class="mt-12 pt-8 border-t-2 border-dashed border-slate-200 space-y-6"><h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">Maintenance</h2><div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6"><div class="overflow-x-auto"><table class="custom-table min-w-[1200px] text-sm text-center border-collapse "><thead class="bg-slate-100"><tr><th class=""></th><th class="align-middle text-center ">Technology</th><th class="align-middle text-center  w-1/4">Key Maintenance activities needed</th><th class="align-middle text-center ">Frequency (Average)</th><th class="align-middle text-center ">Who carries maintenance</th><th class="align-middle text-center ">Any spare stock maintained? Specify</th><th class="align-middle text-center ">Any maintenance contract with Vendor, Specify</th><th class="align-middle text-center ">Any specific challenges in maintenance, Specify</th></tr></thead><tbody id="maint-tbody">${maintPmHtml}${maintGasHtml}</tbody></table></div><div class=" p-4 border-t border-slate-200 flex justify-start gap-2"><button type="button" onclick="addMaintenanceGasRow()" class="bg-white text-ceew-teal border border-ceew-cyan px-4 py-2 text-sm rounded hover:bg-slate-50 font-bold shadow-sm transition">+ Add Gas Parameter</button><button type="button" onclick="removeLastRowWithRowspan('maint-tbody', 'maint-gas-rowspan-td', 11)" class="bg-white text-red-600 border border-red-200 px-4 py-2 text-sm rounded-full hover:bg-red-50 font-semibold shadow-sm hover:shadow transition-all">- Remove</button></div></div></div>`);
+
+                const implQueries = ["If CEMS installed in the plant are suitable", "If you know that certified CEMS are installed and cross-checked the same", "If non-certified CEMS are installed, Performance tests were carried (Performance tests include- 7 days calibration, Cycle test, Linearity, RATA, RRA etc.)", "If In-situ or extractive, CEMS choice is suitable for the plant", "If PM CEMS installed in the stack, it meets 8D/2D criteria", "If PM CEMS installed in the duct, Stratification test was carried", "Gravimetric monitoring of dust was carried by accredited lab for calibration factor for PM CEMS", "CEMS maintenance is regularly carried", "Data monitored by CEMS are standardised for temperature, moisture, pressure, O2/CO2 etc.", "If sampling is heated and terminated properly", "If calibration cylinders are connected properly", "If calibration cylinders are not expired or unavailable", "If zero and span drift check are carried routinely as per guidelines", "If CEMS are physically maintained properly", "If CEMS data matches with lab monitored data (within +/- 10%)", "If CEMS data availability is above 85%", "CEMS outage or Data unavailability is timely reported to the Regulator", "Plant internally checks CEMS installation, working and data"];
+                let implHtml = '';
+                implQueries.forEach((q) => {
+                    implHtml += `<tr><td class="text-left font-medium  "><input type="hidden" name="impl_query" value="${q}">${q}</td><td class=""><select name="impl_confidence"><option value=""></option><option>High</option><option>Moderate</option><option>Low</option><option>Can't say</option></select></td><td class=""><select name="impl_managed_by"><option value=""></option><option>Vendor</option><option>In-house staff</option><option>SPCB</option><option>CPCB</option><option>Consultant</option><option>Guidelines</option></select></td><td class=""><input type="text" name="impl_explanation"></td><td class=""><input type="text" name="impl_guidance"></td><td class=""><input type="text" name="impl_training"></td></tr>`;
+                });
+                container.insertAdjacentHTML('beforeend', `<div class="mt-12 pt-8 border-t-2 border-dashed border-slate-200 space-y-6"><h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">Knowing your CEMS implementation level at plant</h2><div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6"><div class="overflow-x-auto"><table class="custom-table min-w-[1200px] text-sm text-center border-collapse "><thead class="bg-slate-100"><tr><th class="align-middle text-center  w-1/3">Queries</th><th class="align-middle text-center ">How confident you are?<br><span class="font-normal text-xs">(High, moderate, low, can't say)</span></th><th class="align-middle text-center ">Assured/Managed by?<br><span class="font-normal text-xs">Vendor, in-house staff, SPCB, CPCB, Consultant or Guidelines</span></th><th class="align-middle text-center ">Briefly explain, how?</th><th class="align-middle text-center ">Would you prefer an independent guidance/assurance? Specify</th><th class="align-middle text-center ">Would you prefer to learn and get trained on this? Specify</th></tr></thead><tbody>${implHtml}</tbody></table></div></div></div>`);
+
+            } else {
+                container.innerHTML = `<div class="p-8 text-center text-gray-500  border rounded text-lg font-medium">No units were marked as "Using CEMS (Y)" in Step 4.<br> You can click "Next Step" to continue.</div>`;
+            }
+        }
+        function createCemsRowHtml(unitTitle) { return `<tr><input type="hidden" name="cems_unit_id" value="${unitTitle}"><td class=""><input type="text" name="cems_parameter" placeholder="e.g. PM CEMS"></td><td class=""><input type="text" name="cems_emission_level"></td><td class=""><input type="text" name="cems_brand"></td><td class=""><input type="text" name="cems_technology"></td><td class=""><input type="text" name="cems_vendor"></td><td class=""><select name="cems_certification"><option value=""></option><option>Certified</option><option>Non-certified</option></select></td><td class=""><select name="cems_insitu_extractive"><option value=""></option><option>Insitu</option><option>Extractive</option></select></td><td class=""><input type="number" name="cems_install_year" placeholder="YYYY"></td><td class=""><select name="cems_location"><option value=""></option><option>Duct</option><option>Stack</option></select></td><td class=""><select name="cems_position_8d2d"><option value=""></option><option>Yes</option><option>No</option><option>Not Applicable</option></select></td><td class=""><select name="cems_stratification"><option value=""></option><option>Yes</option><option>No</option><option>Not Applicable</option></select></td><td class=""><input type="text" name="cems_applicable_limit"></td><td class=""><input type="text" name="cems_monitoring_range"></td><td class=""><input type="text" name="cems_physical_maintenance"></td><td class=""><input type="text" name="cems_who_carries"></td><td class=""><input type="text" name="cems_frequency"></td></tr>`; }
+        function addCemsRow(unitTitle, btn) { btn.closest('.border-ceew-cyan/30').querySelector('tbody').insertAdjacentHTML('beforeend', createCemsRowHtml(unitTitle)); }
+        function addCylinderRow() { document.getElementById('cylinders-tbody').insertAdjacentHTML('beforeend', `<tr><td class=""><input type="text" name="cyl_parameter" placeholder="Parameter name" required></td><td class=""><input type="text" name="cyl_supplier"></td><td class=""><input type="text" name="cyl_concentration"></td><td class=""><input type="text" name="cyl_expiry" placeholder="DD-MM-YYYY"></td></tr>`); }
+        function addDriftRow() { document.getElementById('drift-tbody').insertAdjacentHTML('beforeend', `<tr><td class=""><input type="text" name="drift_parameter" placeholder="CEMS Parameter" required></td><td class=""><input type="text" name="drift_zero_freq"></td><td class=""><input type="text" name="drift_zero_time"></td><td class=""><input type="text" name="drift_zero_process"></td><td class=""><input type="text" name="drift_span_freq"></td><td class=""><input type="text" name="drift_span_time"></td><td class=""><input type="text" name="drift_span_process"></td></tr>`); }
+        function addGasCalibrationRow() { const tbody = document.getElementById('calib-gas-tbody'); const firstTd = document.getElementById('gas-rowspan-td'); if (firstTd) firstTd.rowSpan += 1; tbody.insertAdjacentHTML('beforeend', `<tr><td class="text-left  "><input type="hidden" name="gas_calib_type" value="Gaseous CEMS"><input type="text" name="gas_cems_inst" placeholder="Specify Gas" class="w-full p-1 text-sm border rounded"></td><td class=""><input type="text" name="gas_calib_who"></td><td class=""><input type="text" name="gas_calib_tests"></td><td class=""><input type="text" name="gas_recalib_who"></td><td class=""><input type="text" name="gas_recalib_tests"></td><td class=""><input type="text" name="gas_recalib_freq"></td><td class=""><select name="gas_remote_avail"><option value=""></option><option>Yes</option><option>No</option></select></td><td class=""><input type="text" name="gas_remote_carried"></td><td class=""><input type="text" name="gas_data_who"></td><td class=""><input type="text" name="gas_data_freq"></td></tr>`); }
+        function addMaintenanceGasRow() { const tbody = document.getElementById('maint-tbody'); const firstTd = document.getElementById('maint-gas-rowspan-td'); if (firstTd) firstTd.rowSpan += 1; tbody.insertAdjacentHTML('beforeend', `<tr><td class="text-left  font-medium "><input type="hidden" name="maint_cems_type" value="Gaseous CEMS"><input type="text" name="maint_tech" placeholder="Specify Gas/Tech" class="w-full p-1 text-sm border rounded"></td><td class=""><input type="text" name="maint_activities"></td><td class=""><input type="text" name="maint_frequency"></td><td class=""><input type="text" name="maint_who"></td><td class=""><input type="text" name="maint_stock"></td><td class=""><input type="text" name="maint_contract"></td><td class=""><input type="text" name="maint_challenges"></td></tr>`); }
+
+        function generateCeqmsDetails() {
+            const container = document.getElementById('ceqms-dynamic-container');
+            container.innerHTML = '';
+            let hasCeqms = false;
+
+            const rows = document.getElementById('dynamic-units-tbody').querySelectorAll('tr');
+            rows.forEach((row) => {
+                const usingSelect = row.querySelector('select[name="effluent_using_ceqms"]');
+                if (usingSelect && usingSelect.value === 'Y') hasCeqms = true;
+            });
+
+            if (hasCeqms) {
+                const defaultParams = ['pH', 'BOD', 'COD', 'TSS', 'Phenol', 'Cyanide', 'Ammonical Nitrogen', 'Chromium', 'Flow', 'Temperature'];
+                let ceqmsHtml = defaultParams.map((param, i) => `<tr><td class="font-bold  text-left  whitespace-nowrap"><input type="hidden" name="ceqms_param" value="CEQMS #${i + 1} - ${param}">CEQMS #${i + 1} - ${param}</td><td class=""><input type="text" name="ceqms_brand"></td><td class=""><input type="text" name="ceqms_tech"></td><td class=""><input type="text" name="ceqms_vendor"></td><td class=""><input type="text" name="ceqms_cert"></td><td class=""><input type="text" name="ceqms_install_type"></td><td class=""><input type="number" name="ceqms_year" placeholder="YYYY"></td><td class=""><input type="text" name="ceqms_loc"></td><td class=""><input type="text" name="ceqms_maint"></td><td class=""><input type="text" name="ceqms_who"></td><td class=""><input type="text" name="ceqms_freq"></td></tr>`).join('');
+                container.insertAdjacentHTML('beforeend', `<div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6"><div class="overflow-x-auto"><table class="custom-table min-w-[1500px] text-xs text-center border-collapse "><thead class="bg-slate-100"><tr><th rowspan="2" class="align-middle text-center  w-48">CEQMS</th><th colspan="5" class="bg-slate-200 align-middle text-center ">Technology</th><th colspan="2" class="bg-slate-200 align-middle text-center ">Installation</th><th colspan="3" class="bg-slate-200 align-middle text-center ">Physical Maintenance (cleaning, washing etc.)</th></tr><tr><th class="align-middle text-center ">Brand<br><span class="font-normal text-[11px]">(specify)</span></th><th class="align-middle text-center ">Technology<br><span class="font-normal text-[11px]">(specify)</span></th><th class="align-middle text-center ">Vendor<br><span class="font-normal text-[11px]">(specify)</span></th><th class="align-middle text-center ">Any certification ?<br><span class="font-normal text-[11px]">(specify)</span></th><th class="align-middle text-center ">Inline/In-situ or online/Extractive<br><span class="font-normal text-[11px]">(specify)</span></th><th class="align-middle text-center ">Year of installation</th><th class="align-middle text-center ">Location of installation<br><span class="font-normal text-[11px]">(After ETP/STP/ in treated water pipeline)</span></th><th class="align-middle text-center ">Specify needed physical maintenances</th><th class="align-middle text-center ">Who carries ?</th><th class="align-middle text-center ">Average frequency</th></tr></thead><tbody id="ceqms-install-tbody">${ceqmsHtml}</tbody></table></div><div class=" p-4 border-t border-slate-200 flex justify-start gap-2"><button type="button" onclick="addCeqmsInstallRow()" class="bg-white text-ceew-teal border border-ceew-cyan px-4 py-2 text-sm rounded hover:bg-slate-50 font-bold shadow-sm transition">+ Add Parameter</button><button type="button" onclick="removeLastRowById('ceqms-install-tbody', 10)" class="bg-white text-red-600 border border-red-200 px-4 py-2 text-sm rounded-full hover:bg-red-50 font-semibold shadow-sm hover:shadow transition-all">- Remove</button></div></div>`);
+
+                let valHtml = '';
+                defaultParams.forEach((param, i) => {
+                    valHtml += `<tr>`;
+                    if (i === 0) valHtml += `<td rowspan="${defaultParams.length}" id="ceqms-val-rowspan-td" class=" text-center align-middle font-bold  w-1/6">CEQMS validation check and Calibration</td>`;
+                    valHtml += `<td class="text-left font-medium   whitespace-nowrap"><input type="hidden" name="ceqms_val_param" value="CEQMS #${i + 1} - ${param}">CEQMS #${i + 1} - ${param}</td><td class=""><input type="text" name="ceqms_val_freq"></td><td class=""><input type="text" name="ceqms_val_diff"></td><td class=""><input type="text" name="ceqms_val_process"></td><td class=""><input type="text" name="ceqms_cal_freq"></td><td class=""><input type="text" name="ceqms_cal_process"></td></tr>`;
+                });
+                container.insertAdjacentHTML('beforeend', `<div class="mt-12 pt-8 border-t-2 border-dashed border-slate-200 space-y-6"><h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">CEQMS Validation and Calibration check</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-6 rounded-lg shadow-sm "><div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Who carries Validation/Variability check? (e.g. Vendor, in-house staff and NABL/EPA accredited lab etc.)</label><input type="text" name="ceqms_val_who" class="mt-1 block w-full border-slate-200 border p-2 rounded"></div><div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Name</label><input type="text" name="ceqms_val_name" class="mt-1 block w-full border-slate-200 border p-2 rounded"></div><div><label class="block text-sm font-medium text-gray-700 mt-2">Who carries Calibration? (e.g. Vendor, in-house staff and NABL/EPA accredited lab etc.)</label><input type="text" name="ceqms_cal_who" class="mt-1 block w-full border-slate-200 border p-2 rounded"></div><div><label class="block text-sm font-medium text-gray-700 mt-2">Name</label><input type="text" name="ceqms_cal_name" class="mt-1 block w-full border-slate-200 border p-2 rounded"></div></div><div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6"><div class="overflow-x-auto"><table class="custom-table min-w-[1200px] text-xs text-center border-collapse "><thead class="bg-slate-100"><tr><th class=""></th><th class="align-middle text-center ">Parameters</th><th class="align-middle text-center ">Frequency of Validation check</th><th class="align-middle text-center ">Average % difference with Reference method value</th><th class="align-middle text-center ">Process of validation check<br><span class="font-normal text-[11px]">(briefly specify)</span></th><th class="align-middle text-center ">Frequency of Calibration</th><th class="align-middle text-center ">Process of Calibration<br><span class="font-normal text-[11px]">(briefly specify)</span></th></tr></thead><tbody id="ceqms-validation-tbody">${valHtml}</tbody></table></div><div class=" p-4 border-t border-slate-200 flex justify-start gap-2"><button type="button" onclick="addCeqmsValidationRow()" class="bg-white text-ceew-teal border border-ceew-cyan px-4 py-2 text-sm rounded hover:bg-slate-50 font-bold shadow-sm transition">+ Add Parameter</button><button type="button" onclick="removeLastRowWithRowspan('ceqms-validation-tbody', 'ceqms-val-rowspan-td', 10)" class="bg-white text-red-600 border border-red-200 px-4 py-2 text-sm rounded-full hover:bg-red-50 font-semibold shadow-sm hover:shadow transition-all">- Remove</button></div></div></div>`);
+
+                let maintCeqmsHtml = '';
+                defaultParams.forEach((param, i) => {
+                    maintCeqmsHtml += `<tr>`;
+                    if (i === 0) maintCeqmsHtml += `<td rowspan="${defaultParams.length}" id="ceqms-maint-rowspan-td" class=" text-center align-middle font-bold  w-1/6">What maintenance activities are carried for CEQMS</td>`;
+                    maintCeqmsHtml += `<td class="text-left font-medium   whitespace-nowrap"><input type="hidden" name="ceqms_maint_param" value="CEQMS #${i + 1} - ${param}">CEQMS #${i + 1} - ${param}</td><td class=""><input type="text" name="ceqms_maint_act"></td><td class=""><input type="text" name="ceqms_maint_freq"></td><td class=""><input type="text" name="ceqms_maint_who"></td><td class=""><input type="text" name="ceqms_maint_stock"></td><td class=""><input type="text" name="ceqms_maint_contract"></td><td class=""><input type="text" name="ceqms_maint_challenges"></td></tr>`;
+                });
+                container.insertAdjacentHTML('beforeend', `<div class="mt-12 pt-8 border-t-2 border-dashed border-slate-200 space-y-6"><h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">CEQMS Maintenance</h2><div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6"><div class="overflow-x-auto"><table class="custom-table min-w-[1200px] text-xs text-center border-collapse "><thead class="bg-slate-100"><tr><th class=""></th><th class="align-middle text-center ">Technology</th><th class="align-middle text-center ">Key Maintenance activities needed</th><th class="align-middle text-center ">Maintenance Frequency (Average)</th><th class="align-middle text-center ">Who carries maintenance</th><th class="align-middle text-center ">Any spare stock maintained? Specify</th><th class="align-middle text-center ">Any maintenance contract with Vendor, Specify</th><th class="align-middle text-center ">Any specific challenge in maintenance, Specify</th></tr></thead><tbody id="ceqms-maint-tbody">${maintCeqmsHtml}</tbody></table></div><div class=" p-4 border-t border-slate-200 flex justify-start gap-2"><button type="button" onclick="addCeqmsMaintenanceRow()" class="bg-white text-ceew-teal border border-ceew-cyan px-4 py-2 text-sm rounded hover:bg-slate-50 font-bold shadow-sm transition">+ Add Parameter</button><button type="button" onclick="removeLastRowWithRowspan('ceqms-maint-tbody', 'ceqms-maint-rowspan-td', 10)" class="bg-white text-red-600 border border-red-200 px-4 py-2 text-sm rounded-full hover:bg-red-50 font-semibold shadow-sm hover:shadow transition-all">- Remove</button></div></div></div>`);
+
+                const ceqmsImplQueries = ["If CEQMS installed in the plant are suitable", "If you know that certified CEQMS are installed and cross-checked", "If CEQMS installed at the right Location and Position", "If CEQMS sampling and processing components matches the product description", "In Sampler to be tested is not stagnant", "If CEQMS data is varying, and not constant", "If CEQMS are physically maintained properly", "If CEQMS shows variation when not in sample/media changes", "If CEQMS data matches with lab monitored data (within variation range)", "CEQMS outage or Data unavailability is timely reported to the Regulator", "Plant internally checks CEQMS installation, working and data"];
+                let ceqmsImplHtml = '';
+                ceqmsImplQueries.forEach((q) => {
+                    ceqmsImplHtml += `<tr><td class="text-left font-medium  "><input type="hidden" name="ceqms_impl_query" value="${q}">${q}</td><td class=""><select name="ceqms_impl_confidence"><option value=""></option><option>High</option><option>Moderate</option><option>Low</option><option>Can't say</option></select></td><td class=""><select name="ceqms_impl_managed_by"><option value=""></option><option>Vendor</option><option>In-house staff</option><option>SPCB</option><option>CPCB</option><option>Consultant</option><option>Guidelines</option></select></td><td class=""><input type="text" name="ceqms_impl_explanation"></td><td class=""><input type="text" name="ceqms_impl_guidance"></td><td class=""><input type="text" name="ceqms_impl_training"></td></tr>`;
+                });
+                container.insertAdjacentHTML('beforeend', `<div class="mt-12 pt-8 border-t-2 border-dashed border-slate-200 space-y-6"><h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">Knowing your CEQMS implementation level at plant</h2><div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6"><div class="overflow-x-auto"><table class="custom-table min-w-[1200px] text-sm text-center border-collapse "><thead class="bg-slate-100"><tr><th class="align-middle text-center  w-1/3">Queries</th><th class="align-middle text-center ">How confident you are?<br><span class="font-normal text-xs">(High, moderate, low, can't say)</span></th><th class="align-middle text-center ">Assured/Managed by?<br><span class="font-normal text-xs">Vendor, in-house staff, SPCB, CPCB, Consultant or Guidelines</span></th><th class="align-middle text-center ">Briefly explain, how?</th><th class="align-middle text-center ">Would you prefer an independent guidance/assurance? Specify</th><th class="align-middle text-center ">Would you prefer to learn and get trained on this? Specify</th></tr></thead><tbody>${ceqmsImplHtml}</tbody></table></div></div></div>`);
+
+            } else {
+                container.innerHTML = `<div class="p-8 text-center text-gray-500  border rounded text-lg font-medium">No units were marked as "Using CEQMS (Y)" in Step 4.<br> You can click "Next Step" to continue.</div>`;
+            }
+        }
+        function addCeqmsInstallRow() { const tbody = document.getElementById('ceqms-install-tbody'); const count = tbody.querySelectorAll('tr').length + 1; tbody.insertAdjacentHTML('beforeend', `<tr><td class="font-bold  text-left  flex items-center gap-1"><span class="whitespace-nowrap">CEQMS #${count} - </span><input type="text" name="ceqms_param" placeholder="Specify..." class="w-full p-1 text-xs  rounded bg-white shadow-inner" required></td><td class=""><input type="text" name="ceqms_brand"></td><td class=""><input type="text" name="ceqms_tech"></td><td class=""><input type="text" name="ceqms_vendor"></td><td class=""><input type="text" name="ceqms_cert"></td><td class=""><input type="text" name="ceqms_install_type"></td><td class=""><input type="number" name="ceqms_year" placeholder="YYYY"></td><td class=""><input type="text" name="ceqms_loc"></td><td class=""><input type="text" name="ceqms_maint"></td><td class=""><input type="text" name="ceqms_who"></td><td class=""><input type="text" name="ceqms_freq"></td></tr>`); }
+        function addCeqmsValidationRow() { const tbody = document.getElementById('ceqms-validation-tbody'); const count = tbody.querySelectorAll('tr').length + 1; const firstTd = document.getElementById('ceqms-val-rowspan-td'); if (firstTd) firstTd.rowSpan += 1; tbody.insertAdjacentHTML('beforeend', `<tr><td class="font-bold  text-left  flex items-center gap-1"><span class="whitespace-nowrap">CEQMS #${count} - </span><input type="text" name="ceqms_val_param" placeholder="Specify..." class="w-full p-1 text-xs  rounded bg-white shadow-inner" required></td><td class=""><input type="text" name="ceqms_val_freq"></td><td class=""><input type="text" name="ceqms_val_diff"></td><td class=""><input type="text" name="ceqms_val_process"></td><td class=""><input type="text" name="ceqms_cal_freq"></td><td class=""><input type="text" name="ceqms_cal_process"></td></tr>`); }
+        function addCeqmsMaintenanceRow() { const tbody = document.getElementById('ceqms-maint-tbody'); const count = tbody.querySelectorAll('tr').length + 1; const firstTd = document.getElementById('ceqms-maint-rowspan-td'); if (firstTd) firstTd.rowSpan += 1; tbody.insertAdjacentHTML('beforeend', `<tr><td class="font-bold  text-left  flex items-center gap-1"><span class="whitespace-nowrap">CEQMS #${count} - </span><input type="text" name="ceqms_maint_param" placeholder="Specify..." class="w-full p-1 text-xs  rounded bg-white shadow-inner" required></td><td class=""><input type="text" name="ceqms_maint_act"></td><td class=""><input type="text" name="ceqms_maint_freq"></td><td class=""><input type="text" name="ceqms_maint_who"></td><td class=""><input type="text" name="ceqms_maint_stock"></td><td class=""><input type="text" name="ceqms_maint_contract"></td><td class=""><input type="text" name="ceqms_maint_challenges"></td></tr>`); }
+
+        function getCaaqmsInstallSystemHtml(sysIndex) {
+            const defaultCaaqmsMonitors = ['PM 2.5, PM10', 'SO2', 'NOX', 'CO', 'O3', 'NH3', 'CH4'];
+            let rows = '';
+            defaultCaaqmsMonitors.forEach((monitor, i) => {
+                rows += `<tr>`;
+                if (i === 0) rows += `<td rowspan="${defaultCaaqmsMonitors.length}" id="caaqms-inst-rowspan-${sysIndex}" class="font-bold  text-center align-middle  w-32">CAAQMS #${sysIndex}</td>`;
+                rows += `<td class="font-medium  text-left  whitespace-nowrap"><input type="hidden" name="caaqms_inst_sys_id" value="CAAQMS #${sysIndex}"><input type="hidden" name="caaqms_inst_monitor" value="${monitor}">${monitor}</td>`;
+                rows += `<td class=""><input type="text" name="caaqms_inst_brand"></td>`;
+                rows += `<td class=""><input type="text" name="caaqms_inst_tech"></td>`;
+                rows += `<td class=""><input type="text" name="caaqms_inst_vendor"></td>`;
+                rows += `<td class=""><input type="text" name="caaqms_inst_cert"></td>`;
+                rows += `<td class=""><input type="number" name="caaqms_inst_year" placeholder="YYYY"></td>`;
+                rows += `<td class=""><input type="text" name="caaqms_inst_loc"></td>`;
+                rows += `<td class=""><input type="text" name="caaqms_inst_maint"></td>`;
+                rows += `<td class=""><input type="text" name="caaqms_inst_who"></td>`;
+                rows += `<td class=""><input type="text" name="caaqms_inst_freq"></td>`;
+                rows += `</tr>`;
+            });
+            return `
+            <div class="caaqms-system-block bg-white rounded-lg shadow-sm  overflow-hidden mb-6" id="caaqms-system-${sysIndex}">
+                <div class="overflow-x-auto">
+                    <table class="custom-table min-w-[1500px] text-xs text-center border-collapse ">
+                        <thead class="bg-slate-100">
+                            <tr>
+                                <th rowspan="2" class="align-middle text-center ">CAAQMS</th>
+                                <th rowspan="2" class="align-middle text-center ">Monitors</th>
+                                <th colspan="4" class="bg-slate-200 align-middle text-center ">Technology</th>
+                                <th colspan="2" class="bg-slate-200 align-middle text-center ">Installation</th>
+                                <th colspan="3" class="bg-slate-200 align-middle text-center ">Physical Maintenance (cleaning etc.)</th>
+                            </tr>
+                            <tr>
+                                <th class="align-middle text-center ">Brand<br><span class="font-normal text-[11px]">(specify)</span></th>
+                                <th class="align-middle text-center ">Technology<br><span class="font-normal text-[11px]">(specify)</span></th>
+                                <th class="align-middle text-center ">Vendor<br><span class="font-normal text-[11px]">(specify)</span></th>
+                                <th class="align-middle text-center ">Any certification ?<br><span class="font-normal text-[11px]">(specify)</span></th>
+                                <th class="align-middle text-center ">Year of installation</th>
+                                <th class="align-middle text-center ">Location/Position</th>
+                                <th class="align-middle text-center ">Specify needed physical maintenances</th>
+                                <th class="align-middle text-center ">Who carries ?</th>
+                                <th class="align-middle text-center ">Average frequency</th>
+                            </tr>
+                        </thead>
+                        <tbody id="caaqms-install-tbody-${sysIndex}">${rows}</tbody>
+                    </table>
+                </div>
+                <div class=" p-4 border-t border-slate-200 flex justify-start gap-2">
+                    <button type="button" onclick="addCaaqmsInstallMonitor(${sysIndex})" class="bg-white text-ceew-teal border border-ceew-cyan px-4 py-2 text-sm rounded hover:bg-slate-50 font-bold shadow-sm transition">+ Add Monitor</button>
+                    <button type="button" onclick="removeLastCaaqmsInstallMonitor(${sysIndex})" class="bg-white text-red-600 border border-red-200 px-4 py-2 text-sm rounded-full hover:bg-red-50 font-semibold shadow-sm hover:shadow transition-all">- Remove Monitor</button>
+                </div>
+            </div>`;
+        }
+
+        function addCaaqmsSystem() {
+            const container = document.getElementById('caaqms-install-systems-container');
+            const count = container.querySelectorAll('.caaqms-system-block').length + 1;
+            container.insertAdjacentHTML('beforeend', getCaaqmsInstallSystemHtml(count));
+        }
+
+        function removeCaaqmsSystem() {
+            const container = document.getElementById('caaqms-install-systems-container');
+            const blocks = container.querySelectorAll('.caaqms-system-block');
+            if (blocks.length > 1) {
+                blocks[blocks.length - 1].remove();
+            }
+        }
+
+        function addCaaqmsInstallMonitor(sysIndex) {
+            const tbody = document.getElementById(`caaqms-install-tbody-${sysIndex}`);
+            if (!tbody) return;
+            const firstTd = document.getElementById(`caaqms-inst-rowspan-${sysIndex}`);
+            if (firstTd) firstTd.rowSpan += 1;
+            tbody.insertAdjacentHTML('beforeend', `<tr><td class="font-medium  text-left  whitespace-nowrap flex items-center gap-1"><input type="hidden" name="caaqms_inst_sys_id" value="CAAQMS #${sysIndex}"><input type="text" name="caaqms_inst_monitor" placeholder="Specify..." class="w-full p-1 text-xs  rounded bg-white shadow-inner" required></td><td class=""><input type="text" name="caaqms_inst_brand"></td><td class=""><input type="text" name="caaqms_inst_tech"></td><td class=""><input type="text" name="caaqms_inst_vendor"></td><td class=""><input type="text" name="caaqms_inst_cert"></td><td class=""><input type="number" name="caaqms_inst_year" placeholder="YYYY"></td><td class=""><input type="text" name="caaqms_inst_loc"></td><td class=""><input type="text" name="caaqms_inst_maint"></td><td class=""><input type="text" name="caaqms_inst_who"></td><td class=""><input type="text" name="caaqms_inst_freq"></td></tr>`);
+        }
+
+        function removeLastCaaqmsInstallMonitor(sysIndex) {
+            const tbody = document.getElementById(`caaqms-install-tbody-${sysIndex}`);
+            if (!tbody) return;
+            if (tbody.children.length > 1) {
+                tbody.lastElementChild.remove();
+                const firstTd = document.getElementById(`caaqms-inst-rowspan-${sysIndex}`);
+                if (firstTd && firstTd.rowSpan > 1) firstTd.rowSpan -= 1;
+            }
+        }
+
+        function generateCaaqmsDetails() {
+            const container = document.getElementById('caaqms-dynamic-container');
+            container.innerHTML = '';
+            let hasCaaqms = false;
+
+            const rows = document.getElementById('dynamic-units-tbody').querySelectorAll('tr');
+            rows.forEach((row) => {
+                const usingSelect = row.querySelector('select[name="aaq_using_caaqms"]');
+                if (usingSelect && usingSelect.value === 'Y') hasCaaqms = true;
+            });
+
+            if (hasCaaqms) {
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="mt-8 space-y-6">
+                        <h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">CAAQMS Installation at plant</h2>
+                        <div id="caaqms-install-systems-container">
+                            ${getCaaqmsInstallSystemHtml(1)}
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-100 p-4 rounded ">
+                            <button type="button" onclick="addCaaqmsSystem()" class="bg-white text-ceew-green border border-ceew-green px-6 py-2 rounded hover:bg-green-50 font-bold shadow-sm transition">+ Add New CAAQMS System</button>
+                            <button type="button" onclick="removeCaaqmsSystem()" class="bg-white text-red-600 border border-red-400 px-6 py-2 rounded hover:bg-red-50 font-bold shadow-sm transition">- Remove System</button>
+                        </div>
+                    </div>
+                `);
+
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="mt-12 space-y-6">
+                        <h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">CAAQMS Drift Check</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-6 rounded-lg shadow-sm ">
+                            <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Who carries drift check?</label><input type="text" name="caaqms_drift_who_carries" placeholder="e.g. Vendor, in-house staff, automatic" class="mt-1 block w-full border-slate-200 border p-2 rounded"></div>
+                            <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">What all gas cylinders are available for drift checks?</label><input type="text" name="caaqms_drift_available_cylinders" placeholder="Name parameters" class="mt-1 block w-full border-slate-200 border p-2 rounded"></div>
+                            <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Are calibration cylinders connected to analyzers?</label><select name="caaqms_drift_cylinders_connected" class="mt-1 block w-full border-slate-200 border p-2 rounded"><option value=""></option><option>Yes</option><option>No</option></select></div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6">
+                            <div class="overflow-x-auto">
+                                <table class="custom-table w-full text-sm border-collapse ">
+                                    <thead class="bg-slate-100">
+                                        <tr>
+                                            <th class=""></th>
+                                            <th class="text-center align-middle ">Parameters</th>
+                                            <th class="text-center align-middle ">Manufacturer/ Supplier (Specify)</th>
+                                            <th class="text-center align-middle ">Concentration</th>
+                                            <th class="text-center align-middle ">Expiry date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="caaqms-cylinders-tbody">
+                                        ${['N2', 'SO2', 'NOx'].map((p, i) => `
+                                            <tr>
+                                                ${i === 0 ? `<td rowspan="3" id="caaqms-cyl-rowspan-td" class=" text-center align-middle font-bold  w-1/4">Calibration Cylinders detail</td>` : ''}
+                                                <td class="font-medium  "><input type="hidden" name="caaqms_cyl_parameter" value="${p}">${p}</td>
+                                                <td class=""><input type="text" name="caaqms_cyl_supplier"></td>
+                                                <td class=""><input type="text" name="caaqms_cyl_concentration"></td>
+                                                <td class=""><input type="text" name="caaqms_cyl_expiry" placeholder="DD-MM-YYYY"></td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class=" p-4 border-t border-slate-200 flex justify-start gap-2">
+                                <button type="button" onclick="addCaaqmsCylinderRow()" class="bg-white text-ceew-teal border border-ceew-cyan px-4 py-2 text-sm rounded hover:bg-slate-50 font-bold shadow-sm transition">+ Add Cylinder</button>
+                                <button type="button" onclick="removeLastRowWithRowspan('caaqms-cylinders-tbody', 'caaqms-cyl-rowspan-td', 3)" class="bg-white text-red-600 border border-red-200 px-4 py-2 text-sm rounded-full hover:bg-red-50 font-semibold shadow-sm hover:shadow transition-all">- Remove</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6">
+                            <div class="overflow-x-auto">
+                                <table class="custom-table w-full min-w-[1000px] text-sm border-collapse ">
+                                    <thead class="bg-slate-100">
+                                        <tr>
+                                            <th class="text-center align-middle ">CAAQMS (Whichever is applicable)</th>
+                                            <th class="text-center align-middle ">Zero drift frequency</th>
+                                            <th class="text-center align-middle ">Zero drift check process</th>
+                                            <th class="text-center align-middle ">Span drift frequency</th>
+                                            <th class="text-center align-middle ">Span check process</th>
+                                            <th class="text-center align-middle ">Calibration frequency</th>
+                                            <th class="text-center align-middle ">Calibration process</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="caaqms-drift-tbody">
+                                        ${['PM 2.5', 'PM10', 'SO2', 'NOX', 'CO', 'O3', 'NH3', 'CH4'].map(p => `
+                                            <tr>
+                                                <td class="font-medium  "><input type="hidden" name="caaqms_drift_parameter" value="${p}">${p}</td>
+                                                <td class=""><input type="text" name="caaqms_drift_zero_freq"></td>
+                                                <td class=""><input type="text" name="caaqms_drift_zero_process"></td>
+                                                <td class=""><input type="text" name="caaqms_drift_span_freq"></td>
+                                                <td class=""><input type="text" name="caaqms_drift_span_process"></td>
+                                                <td class=""><input type="text" name="caaqms_calib_freq"></td>
+                                                <td class=""><input type="text" name="caaqms_calib_process"></td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class=" p-4 border-t border-slate-200 flex justify-start gap-2">
+                                <button type="button" onclick="addCaaqmsDriftRow()" class="bg-white text-ceew-teal border border-ceew-cyan px-4 py-2 text-sm rounded hover:bg-slate-50 font-bold shadow-sm transition">+ Add Parameter</button>
+                                <button type="button" onclick="removeLastRowById('caaqms-drift-tbody', 8)" class="bg-white text-red-600 border border-red-200 px-4 py-2 text-sm rounded-full hover:bg-red-50 font-semibold shadow-sm hover:shadow transition-all">- Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+                const defaultCaaqmsTech = ['PM 2.5', 'PM10', 'SO2', 'NOX', 'CO', 'O3', 'NH3', 'CH4'];
+                let maintCaaqmsHtml = '';
+                defaultCaaqmsTech.forEach((tech, i) => {
+                    maintCaaqmsHtml += `<tr>`;
+                    if (i === 0) maintCaaqmsHtml += `<td rowspan="${defaultCaaqmsTech.length}" id="caaqms-maint-rowspan-td" class=" text-center align-middle font-bold  w-1/4">What maintenance activities are carried for CAAQMS</td>`;
+                    maintCaaqmsHtml += `<td class="text-left font-medium   whitespace-nowrap"><input type="hidden" name="caaqms_maint_tech" value="${tech}">${tech}</td><td class=""><input type="text" name="caaqms_maint_act"></td><td class=""><input type="text" name="caaqms_maint_freq"></td><td class=""><input type="text" name="caaqms_maint_who"></td><td class=""><input type="text" name="caaqms_maint_stock"></td><td class=""><input type="text" name="caaqms_maint_contract"></td><td class=""><input type="text" name="caaqms_maint_challenges"></td>`;
+                    maintCaaqmsHtml += `</tr>`;
+                });
+                container.insertAdjacentHTML('beforeend', `<div class="mt-8 space-y-6"><h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">Maintenance</h2><div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6"><div class="overflow-x-auto"><table class="custom-table min-w-[1200px] text-sm text-center border-collapse "><thead class="bg-slate-100"><tr><th class=""></th><th class="align-middle text-center ">Technology</th><th class="align-middle text-center  w-1/4">Key Maintenance activities needed</th><th class="align-middle text-center ">Frequency (Average)</th><th class="align-middle text-center ">Who carries maintenance</th><th class="align-middle text-center ">Any spare stock maintained? Specify</th><th class="align-middle text-center ">Any maintenance contract with Vendor, Specify</th><th class="align-middle text-center ">Any specific challenges in maintenance, Specify</th></tr></thead><tbody id="caaqms-maint-tbody">${maintCaaqmsHtml}</tbody></table></div><div class=" p-4 border-t border-slate-200 flex justify-start gap-2"><button type="button" onclick="addCaaqmsMaintenanceRow()" class="bg-white text-ceew-teal border border-ceew-cyan px-4 py-2 text-sm rounded hover:bg-slate-50 font-bold shadow-sm transition">+ Add Parameter</button><button type="button" onclick="removeLastRowWithRowspan('caaqms-maint-tbody', 'caaqms-maint-rowspan-td', 8)" class="bg-white text-red-600 border border-red-200 px-4 py-2 text-sm rounded-full hover:bg-red-50 font-semibold shadow-sm hover:shadow transition-all">- Remove</button></div></div></div>`);
+
+                const caaqmsImplQueries = ["If all CAAQMS - PM 2.5/10, SO2, NOx, CO, O3 etc. are Certified", "If CAAQMS installed at the right Location", "If CAAQMS installed at the right Position", "If CAAQMS sampling and processing components matches the product description", "In CAAQMS sampling rate is correct", "If CAAQMS data is varying and reflects the ground reality", "If CAAQMS are physically maintained properly", "If CAAQMS data matches with lab monitored data", "CAAQMS outage or Data unavailability is timely reported to the Regulator", "Plant internally checks CAAQMS installation, working and data"];
+                let caaqmsImplHtml = '';
+                caaqmsImplQueries.forEach((q) => {
+                    caaqmsImplHtml += `<tr><td class="text-left font-medium  "><input type="hidden" name="caaqms_impl_query" value="${q}">${q}</td><td class=""><select name="caaqms_impl_confidence"><option value=""></option><option>High</option><option>Moderate</option><option>Low</option><option>Can't say</option></select></td><td class=""><select name="caaqms_impl_managed_by"><option value=""></option><option>Vendor</option><option>In-house staff</option><option>SPCB</option><option>CPCB</option><option>Consultant</option><option>Guidelines</option></select></td><td class=""><input type="text" name="caaqms_impl_explanation"></td><td class=""><input type="text" name="caaqms_impl_guidance"></td><td class=""><input type="text" name="caaqms_impl_training"></td></tr>`;
+                });
+                container.insertAdjacentHTML('beforeend', `<div class="mt-12 pt-8 border-t-2 border-dashed border-slate-200 space-y-6"><h2 class="text-[1.35rem] font-bold text-slate-800 mb-4 pb-3 border-b border-slate-200">Knowing your CAAQMS implementation level at plant</h2><div class="bg-white rounded-lg shadow-sm  overflow-hidden mt-6"><div class="overflow-x-auto"><table class="custom-table min-w-[1200px] text-sm text-center border-collapse "><thead class="bg-slate-100"><tr><th class="align-middle text-center  w-1/3">Queries</th><th class="align-middle text-center ">How confident you are?<br><span class="font-normal text-xs">(specify- High, moderate, low, can't say)</span></th><th class="align-middle text-center ">Assured/Managed by?<br><span class="font-normal text-xs">Vendor, in-house staff, SPCB, CPCB, Consultant or by following Guidelines</span></th><th class="align-middle text-center ">Briefly explain, how?</th><th class="align-middle text-center ">Would you prefer an independent guidance/assurance? Specify</th><th class="align-middle text-center ">Would you prefer to learn and get trained on this? Specify</th></tr></thead><tbody>${caaqmsImplHtml}</tbody></table></div></div></div>`);
+
+            } else {
+                container.innerHTML = `<div class="p-8 text-center text-gray-500  border rounded text-lg font-medium">No units were marked as "Using CAAQMS (Y)" in Step 4.<br> You can click "Next Step" to continue.</div>`;
+            }
+        }
+
+        function addCaaqmsCylinderRow() {
+            const tbody = document.getElementById('caaqms-cylinders-tbody');
+            const firstTd = document.getElementById('caaqms-cyl-rowspan-td');
+            if (firstTd) firstTd.rowSpan += 1;
+            tbody.insertAdjacentHTML('beforeend', `<tr><td class="font-medium  "><input type="text" name="caaqms_cyl_parameter" placeholder="Other (specify)" class="w-full p-1 text-sm border rounded" required></td><td class=""><input type="text" name="caaqms_cyl_supplier"></td><td class=""><input type="text" name="caaqms_cyl_concentration"></td><td class=""><input type="text" name="caaqms_cyl_expiry" placeholder="DD-MM-YYYY"></td></tr>`);
+        }
+
+        function addCaaqmsDriftRow() {
+            document.getElementById('caaqms-drift-tbody').insertAdjacentHTML('beforeend', `<tr><td class="font-medium  "><input type="text" name="caaqms_drift_parameter" placeholder="Other (specify)" class="w-full p-1 text-sm border rounded" required></td><td class=""><input type="text" name="caaqms_drift_zero_freq"></td><td class=""><input type="text" name="caaqms_drift_zero_process"></td><td class=""><input type="text" name="caaqms_drift_span_freq"></td><td class=""><input type="text" name="caaqms_drift_span_process"></td><td class=""><input type="text" name="caaqms_calib_freq"></td><td class=""><input type="text" name="caaqms_calib_process"></td></tr>`);
+        }
+
+        function addCaaqmsMaintenanceRow() {
+            const tbody = document.getElementById('caaqms-maint-tbody');
+            const firstTd = document.getElementById('caaqms-maint-rowspan-td');
+            if (firstTd) firstTd.rowSpan += 1;
+            tbody.insertAdjacentHTML('beforeend', `<tr><td class="text-left font-medium  "><input type="text" name="caaqms_maint_tech" placeholder="Specify Tech" class="w-full p-1 text-sm border rounded"></td><td class=""><input type="text" name="caaqms_maint_act"></td><td class=""><input type="text" name="caaqms_maint_freq"></td><td class=""><input type="text" name="caaqms_maint_who"></td><td class=""><input type="text" name="caaqms_maint_stock"></td><td class=""><input type="text" name="caaqms_maint_contract"></td><td class=""><input type="text" name="caaqms_maint_challenges"></td></tr>`);
+        }
+
+        function generateChallengesMatrix() {
+            const phases = ["Mention top 3 challenges you face/faced if Technology selection? \n(1 is most challenging, 3 is least challenging)", "Mention top 3 challenges you face/faced if Installation and Set-up? \n(1 is most challenging, 3 is least challenging)", "Mention top 3 challenges you face/faced if Calibration/Recalibration? \n(1 is most challenging, 3 is least challenging)", "Mention top 3 challenges you face/faced if Physical maintenance such as cleaning, alignment etc.? \n(1 is most challenging, 3 is least challenging)", "Mention top 3 challenges you face/faced if Data Handling? \n(1 is most challenging, 3 is least challenging)"];
+            const systems = ["CEMS", "CEQMS", "CAAQMS"];
+            const tbody = document.getElementById('challenges-tbody');
+            if (tbody.innerHTML.trim() !== "") return;
+            phases.forEach((phase) => {
+                systems.forEach((system, index) => {
+                    let tr = document.createElement('tr');
+                    let html = (index === 0) ? `<td rowspan="3" class="font-medium whitespace-pre-wrap leading-relaxed align-middle text-center">${phase}</td>` : '';
+                    html += `<td class="font-bold  text-center align-middle">${system}<input type="hidden" name="challenge_phase" value="${phase}"><input type="hidden" name="challenge_system" value="${system}"></td><td><input type="text" name="challenge_1"></td><td><input type="text" name="challenge_2"></td><td><input type="text" name="challenge_3"></td><td><input type="text" name="challenge_helped_most"></td><td><input type="text" name="challenge_how_helped"></td><td class="align-top"><textarea name="regulatory_support" class="w-full min-h-[50px]"></textarea></td>`;
+                    tr.innerHTML = html;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+
+        function isBlankOrNA(v) {
+            const t = v.trim().toUpperCase();
+            return t === '' || t === 'NA' || t === 'N/A';
+        }
+
+        function validateStepFormats(stepEl) {
+            const violations = [];
+
+            stepEl.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+
+            stepEl.querySelectorAll('input[type="number"]').forEach(inp => {
+                const ph = (inp.placeholder || '').toUpperCase();
+                const nm = (inp.name || '').toLowerCase();
+                if (ph !== 'YYYY' && !nm.includes('year')) return;
+                const val = inp.value.trim();
+                if (isBlankOrNA(val) || val === '') return;
+                const yr = parseInt(val, 10);
+                if (isNaN(yr) || String(yr).length !== 4 || yr < 1900 || yr > 2099) {
+                    inp.classList.add('field-error');
+                    const label = inp.closest('td,div')?.querySelector('label')?.textContent?.trim()
+                        || inp.placeholder || inp.name || 'Year field';
+                    violations.push(`"${label.substring(0, 60)}" — year must be 4 digits (e.g. 2020)`);
+                }
+            });
+
+            stepEl.querySelectorAll('input[type="text"]').forEach(inp => {
+                const ph = (inp.placeholder || '').toUpperCase();
+                if (!ph.includes('DD') && !ph.includes('DATE')) return;
+                const val = inp.value.trim();
+                if (isBlankOrNA(val) || val === '') return;
+                const ok = /^\d{2}[-/]\d{2}[-/]\d{4}$/.test(val);
+                if (!ok) {
+                    inp.classList.add('field-error');
+                    const label = inp.closest('td,div')?.querySelector('label')?.textContent?.trim()
+                        || inp.placeholder || inp.name || 'Date field';
+                    violations.push(`"${label.substring(0, 60)}" — date must be DD-MM-YYYY (e.g. 15-03-2024)`);
+                }
+            });
+
+            return violations;
+        }
+
+        function showValidationToast(violations) {
+            const toast = document.getElementById('validation-toast');
+            const list = document.getElementById('validation-toast-list');
+            list.innerHTML = violations.map(v => `<li>${v}</li>`).join('');
+            toast.classList.add('show');
+            clearTimeout(toast._hideTimer);
+            toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 12000);
+        }
+
+        function closeValidationToast() {
+            document.getElementById('validation-toast').classList.remove('show');
+        }
+
+        function goToStep(step) {
+            if (step > 1) {
+                const prevEl = document.getElementById('step-' + (step - 1));
+                const requiredInputs = prevEl.querySelectorAll('[required]');
+                let htmlValid = true;
+                requiredInputs.forEach(inp => { if (!inp.checkValidity()) { inp.reportValidity(); htmlValid = false; } });
+                if (!htmlValid) return;
+                const violations = validateStepFormats(prevEl);
+                if (violations.length > 0) {
+                    showValidationToast(violations);
+                    return;
+                }
+                closeValidationToast();
+            }
+            if (step === 4) generateDynamicUnits();
+            if (step === 5) generateCemsDetails();
+            if (step === 6) generateCeqmsDetails();
+            if (step === 7) generateCaaqmsDetails();
+            if (step === 8) generateChallengesMatrix();
+
+            for (let i = 1; i <= 9; i++) {
+                document.getElementById('step-' + i).classList.add('hidden-step');
+
+                let circle = document.getElementById('circle-step-' + i);
+                let text = document.getElementById('text-step-' + i);
+                let num = document.getElementById('num-step-' + i);
+                let check = document.getElementById('check-step-' + i);
+                let line = document.getElementById('line-step-' + i);
+
+                circle.className = "step-circle relative z-10 w-8 h-8 flex items-center justify-center bg-white border-2 border-slate-300 rounded-full transition-all duration-300 shadow-sm";
+                text.className = "step-text text-sm font-semibold tracking-wide text-slate-500 transition-colors duration-300";
+                num.classList.remove('hidden');
+                check.classList.add('hidden');
+                if (line) line.className = "absolute top-4 left-4 -ml-px h-full w-[2px] bg-slate-200 step-line transition-colors duration-300";
+
+                if (i === step) {
+                    circle.classList.add('border-ceew-teal', 'ring-4', 'ring-ceew-cyan/20');
+                    circle.classList.remove('border-slate-300');
+                    text.classList.add('text-ceew-teal', 'font-bold');
+                    text.classList.remove('text-slate-500', 'font-semibold');
+                    num.classList.add('text-ceew-teal');
+                    num.classList.remove('text-slate-500');
+                } else if (i < step) {
+                    circle.classList.add('bg-ceew-teal', 'border-ceew-teal');
+                    circle.classList.remove('bg-white', 'border-slate-300');
+                    text.classList.add('text-slate-900');
+                    text.classList.remove('text-slate-500');
+                    num.classList.add('hidden');
+                    check.classList.remove('hidden');
+                    if (line) {
+                        line.classList.add('bg-ceew-teal');
+                        line.classList.remove('bg-slate-200');
+                    }
+                }
+            }
+            document.getElementById('step-' + step).classList.remove('hidden-step');
+            window.scrollTo(0, 0);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            goToStep(1);
+        });
+    </script>
+</body>
+
+</html>
