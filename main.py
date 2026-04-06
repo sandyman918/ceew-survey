@@ -390,6 +390,7 @@ def require_user(session_token: Optional[str] = Cookie(default=None)) -> int:
         raise HTTPException(status_code=302, headers={"Location": "/login"})
     return user_id
 
+app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
 def render_template(name: str, context: dict):
