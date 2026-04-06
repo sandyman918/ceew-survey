@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — CEEW Survey</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon_32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon_16.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { ceew: { teal: '#005C8A', cyan: '#00A3E0', green: '#84C225' } } } }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .auth-card {
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen bg-gradient-to-br from-slate-900 via-ceew-teal to-slate-800 flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <div
+                class="inline-flex items-center gap-6 bg-white/10 p-5 rounded-3xl mb-4 backdrop-blur border border-white/10 shadow-xl">
+                <img src="/assets/logo_ceew.png" alt="CEEW Logo" class="h-10 w-auto">
+                <div class="h-10 w-px bg-white/20"></div>
+                <img src="/assets/logo_pspcb.png" alt="Punjab SPCB Logo" class="h-14 w-auto">
+            </div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">Real-Time Monitoring Survey</h1>
+            <p class="text-white/60 text-sm mt-1 uppercase tracking-widest font-medium">Council on Energy, Environment
+                and Water</p>
+        </div>
+
+        <div class="auth-card bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
+            <h2 class="text-xl font-semibold text-white mb-6">Sign in to your account</h2>
+
+            {% if msg %}
+            <div
+                class="bg-red-500/20 border border-red-400/40 text-red-200 rounded-lg px-4 py-3 mb-5 text-sm flex items-center gap-2">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clip-rule="evenodd" />
+                </svg>
+                {{ msg }}
+            </div>
+            {% endif %}
+
+            <form method="post" action="/login" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-white/80 mb-1.5">Email Address</label>
+                    <input type="email" name="email" required autocomplete="email"
+                        class="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-ceew-cyan focus:border-transparent transition"
+                        placeholder="your@email.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-white/80 mb-1.5">Password</label>
+                    <input type="password" name="password" required autocomplete="current-password"
+                        class="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-ceew-cyan focus:border-transparent transition"
+                        placeholder="••••••••">
+                </div>
+                <div class="flex justify-end">
+                    <a href="/forgot-password" class="text-sm text-ceew-cyan hover:text-white transition">Forgot
+                        password?</a>
+                </div>
+                <button type="submit"
+                    class="w-full bg-ceew-green hover:bg-green-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-green-500/30 hover:-translate-y-0.5">
+                    Sign In →
+                </button>
+            </form>
+
+            <div class="mt-6 pt-6 border-t border-white/10 text-center">
+                <p class="text-white/60 text-sm">Don't have an account?
+                    <a href="/register" class="text-ceew-cyan hover:text-white font-medium transition ml-1">Create
+                        Account</a>
+                </p>
+            </div>
+        </div>
+
+        <p class="text-center text-white/30 text-xs mt-6">CEEW — Council on Energy, Environment and Water</p>
+    </div>
+
+</body>
+
+</html>
